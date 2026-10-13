@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.6.33723.286
+# Visual Studio Version 18
+VisualStudioVersion = 18.10.12224.181 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LawnProject", "SexyAppFramework\SexyAppBase.vcxproj", "{DA08CABA-92AC-40F0-B63D-6ACE7814D600}"
 EndProject
@@ -14,6 +14,8 @@ Global
 		Release|x64 = Release|x64
 		ReleaseGOTY|Win32 = ReleaseGOTY|Win32
 		ReleaseGOTY|x64 = ReleaseGOTY|x64
+		RelWithDebInfoGOTY|Win32 = RelWithDebInfoGOTY|Win32
+		RelWithDebInfoGOTY|x64 = RelWithDebInfoGOTY|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{DA08CABA-92AC-40F0-B63D-6ACE7814D600}.Debug|Win32.ActiveCfg = Debug|Win32
@@ -32,6 +34,10 @@ Global
 		{DA08CABA-92AC-40F0-B63D-6ACE7814D600}.ReleaseGOTY|Win32.Build.0 = ReleaseGOTY|Win32
 		{DA08CABA-92AC-40F0-B63D-6ACE7814D600}.ReleaseGOTY|x64.ActiveCfg = ReleaseGOTY|x64
 		{DA08CABA-92AC-40F0-B63D-6ACE7814D600}.ReleaseGOTY|x64.Build.0 = ReleaseGOTY|x64
+		{DA08CABA-92AC-40F0-B63D-6ACE7814D600}.RelWithDebInfoGOTY|Win32.ActiveCfg = RelWithDebInfoGOTY|Win32
+		{DA08CABA-92AC-40F0-B63D-6ACE7814D600}.RelWithDebInfoGOTY|Win32.Build.0 = RelWithDebInfoGOTY|Win32
+		{DA08CABA-92AC-40F0-B63D-6ACE7814D600}.RelWithDebInfoGOTY|x64.ActiveCfg = RelWithDebInfoGOTY|x64
+		{DA08CABA-92AC-40F0-B63D-6ACE7814D600}.RelWithDebInfoGOTY|x64.Build.0 = RelWithDebInfoGOTY|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
