@@ -4150,17 +4150,21 @@ PlantingReason Board::CanPlantAt(int theGridX, int theGridY, SeedType theSeedTyp
 	{
 		if (theSeedType == SeedType::SEED_COBCANNON)
 		{
-			if (result != PlantingReason::PLANTING_OK) {
-				return result;
-			}
-			
 			PlantsOnLawn plantOnLawnX, plantOnLawnX1;
 			GetPlantsOnLawn(theGridX, theGridY, &plantOnLawnX);
 			GetPlantsOnLawn(theGridX + 1, theGridY, &plantOnLawnX1);
-			if (CanPlantAtInternal(theGridX + 1, theGridY, SeedType::SEED_KERNELPULT) != PlantingReason::PLANTING_OK || plantOnLawnX.mPumpkinPlant || plantOnLawnX1.mPumpkinPlant)
+			
+			auto oldEasyPlantingCheat = mApp->mEasyPlantingCheat;
+			mApp->mEasyPlantingCheat = true;
+			if (IsValidCobCannonSpot(theGridX, theGridY) && !plantOnLawnX.mNormalPlant && !plantOnLawnX1.mNormalPlant)
+			{
+				result = PlantingReason::PLANTING_OK;
+			}
+			else
 			{
 				result = PlantingReason::PLANTING_NOT_HERE;
 			}
+			mApp->mEasyPlantingCheat = oldEasyPlantingCheat;
 		}
 		else if (theSeedType == SeedType::SEED_CATTAIL)
 		{
