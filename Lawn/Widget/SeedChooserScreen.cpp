@@ -863,15 +863,18 @@ void SeedChooserScreen::OnStartButton()
 		}
 	}
 
-	if (!CheckSeedUpgrade(SEED_GATLINGPEA, SEED_REPEATER) || 
-		!CheckSeedUpgrade(SEED_WINTERMELON, SEED_MELONPULT) || 
-		!CheckSeedUpgrade(SEED_TWINSUNFLOWER, SEED_SUNFLOWER) || 
-		!CheckSeedUpgrade(SEED_SPIKEROCK, SEED_SPIKEWEED) || 
-		!CheckSeedUpgrade(SEED_COBCANNON, SEED_KERNELPULT) || 
-		!CheckSeedUpgrade(SEED_GOLD_MAGNET, SEED_MAGNETSHROOM) || 
-		!CheckSeedUpgrade(SEED_GLOOMSHROOM, SEED_FUMESHROOM) || 
-		!CheckSeedUpgrade(SEED_CATTAIL, SEED_LILYPAD))
-		return;
+	if (!mApp->mSlotData->easy_upgrade_plants())
+	{
+		if (!CheckSeedUpgrade(SEED_GATLINGPEA, SEED_REPEATER) || 
+			!CheckSeedUpgrade(SEED_WINTERMELON, SEED_MELONPULT) || 
+			!CheckSeedUpgrade(SEED_TWINSUNFLOWER, SEED_SUNFLOWER) || 
+			!CheckSeedUpgrade(SEED_SPIKEROCK, SEED_SPIKEWEED) || 
+			!CheckSeedUpgrade(SEED_COBCANNON, SEED_KERNELPULT) || 
+			!CheckSeedUpgrade(SEED_GOLD_MAGNET, SEED_MAGNETSHROOM) || 
+			!CheckSeedUpgrade(SEED_GLOOMSHROOM, SEED_FUMESHROOM) || 
+			!CheckSeedUpgrade(SEED_CATTAIL, SEED_LILYPAD))
+			return;
+	}
 
 	CloseSeedChooser();
 }
