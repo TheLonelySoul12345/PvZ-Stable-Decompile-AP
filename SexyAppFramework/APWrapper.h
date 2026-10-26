@@ -2,6 +2,7 @@
 #define AP_WRAPPER_H
 
 #include <functional>
+#include <memory>
 #include <set>
 #include <string>
 #include <nlohmann/json_fwd.hpp>

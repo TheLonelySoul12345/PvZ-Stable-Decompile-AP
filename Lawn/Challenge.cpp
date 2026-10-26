@@ -3534,33 +3534,36 @@ void Challenge::DrawRain(Graphics* g)
 //0x426E90
 void Challenge::DrawStormNight(Graphics* g)
 {
-	if (mChallengeState == STATECHALLENGE_STORM_FLASH_1 && mChallengeStateCounter < 300)
+	if (!mApp->mSlotData->disable_storm_flashes())
 	{
-		if (mChallengeStateCounter > STORM_FLASH_TIME)
+		if (mChallengeState == STATECHALLENGE_STORM_FLASH_1 && mChallengeStateCounter < 300)
 		{
-			DrawStormFlash(g, mChallengeStateCounter - STORM_FLASH_TIME, 255);
+			if (mChallengeStateCounter > STORM_FLASH_TIME)
+			{
+				DrawStormFlash(g, mChallengeStateCounter - STORM_FLASH_TIME, 255);
+			}
+			else
+			{
+				DrawStormFlash(g, mChallengeStateCounter, 92);
+			}
+		}
+		else if (mChallengeState == STATECHALLENGE_STORM_FLASH_2 && mChallengeStateCounter < 300)
+		{
+			DrawStormFlash(g, mChallengeStateCounter / 2, 255);
+		}
+		else if (mChallengeState == STATECHALLENGE_STORM_FLASH_3 && mChallengeStateCounter < 150)
+		{
+			DrawStormFlash(g, mChallengeStateCounter, 255);
 		}
 		else
 		{
-			DrawStormFlash(g, mChallengeStateCounter, 92);
+			g->PushState();
+			g->mTransX = 0;
+			g->mTransY = 0;
+			g->SetColor(Color::Black);
+			g->FillRect(-1000, -1000, BOARD_WIDTH + 2000, BOARD_HEIGHT + 2000);
+			g->PopState();
 		}
-	}
-	else if (mChallengeState == STATECHALLENGE_STORM_FLASH_2 && mChallengeStateCounter < 300)
-	{
-		DrawStormFlash(g, mChallengeStateCounter / 2, 255);
-	}
-	else if (mChallengeState == STATECHALLENGE_STORM_FLASH_3 && mChallengeStateCounter < 150)
-	{
-		DrawStormFlash(g, mChallengeStateCounter, 255);
-	}
-	else
-	{
-		g->PushState();
-		g->mTransX = 0;
-		g->mTransY = 0;
-		g->SetColor(Color::Black);
-		g->FillRect(-1000, -1000, BOARD_WIDTH + 2000, BOARD_HEIGHT + 2000);
-		g->PopState();
 	}
 
 	mBoard->DrawUIBottom(g);

@@ -2,6 +2,7 @@
 #define APDATA_H
 
 #include <cstdint>
+#include <memory>
 #include <optional>
 #include <set>
 #include <nlohmann/json_fwd.hpp>
