@@ -3556,7 +3556,7 @@ ZombieType Board::PickZombieType(int theZombiePoints, int theWaveIndex, ZombiePi
 			}
 		}
 		// 僵尸最早出现的波数的限制（出怪限制）
-		//else if (aGameMode != GameMode::GAMEMODE_CHALLENGE_POGO_PARTY && aGameMode != GameMode::GAMEMODE_CHALLENGE_BOBSLED_BONANZA && aGameMode != GameMode::GAMEMODE_CHALLENGE_AIR_RAID)
+		else if (aGameMode != GameMode::GAMEMODE_CHALLENGE_POGO_PARTY && aGameMode != GameMode::GAMEMODE_CHALLENGE_BOBSLED_BONANZA && aGameMode != GameMode::GAMEMODE_CHALLENGE_AIR_RAID) // why was this commented out to begin with?
 		{
 			int aFirstAllowedWave = aZombieDef.mFirstAllowedWave;
 			if (mApp->mSlotData->harder_zombie_spawns() && mApp->mSlotData->is_eligible_for_harder_zombie_spawns(mApp->CurrentAPLevelId()))
