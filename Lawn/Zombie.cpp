@@ -3955,6 +3955,10 @@ void Zombie::DropHead(unsigned int theDamageFlags)
         ReanimShowPrefix("hat", RENDER_GROUP_HIDDEN);
         aEffect = ParticleEffect::PARTICLE_ZOMBIE_BALLOON_HEAD;
     }
+    else if (mZombieType == ZombieType::ZOMBIE_POLEVAULTER)
+    {
+        DropPole();
+    }
     else if (mZombieType == ZombieType::ZOMBIE_FLAG)
     {
         DropFlag();
