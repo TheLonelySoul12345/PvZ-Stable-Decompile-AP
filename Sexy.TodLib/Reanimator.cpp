@@ -943,13 +943,6 @@ void Reanimation::DrawRenderGroup(Graphics* g, int theRenderGroup)
 			if (!aTrackInstance->mForceDontRender)
 			{
 				g->PushState();
-				if (mReanimationType == ReanimationType::REANIM_CREDITS_ANYHOUR)
-				{
-					if (strcmpi(mDefinition->mTracks.tracks[aTrackIndex].mName, "Background1") == 0 || strcmpi(mDefinition->mTracks.tracks[aTrackIndex].mName, "Background2") == 0)
-					{
-						g->TranslateF(-240, -60);
-					}
-				}
 				aTrackDrawn = DrawTrack(g, aTrackIndex, theRenderGroup, &aTriangleGroup);
 				g->PopState();
 			}

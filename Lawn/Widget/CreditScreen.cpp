@@ -884,12 +884,6 @@ void CreditScreen::Draw(Graphics* g)
         for (int aTrackIndex = 0; aTrackIndex < aCreditsReanim->mDefinition->mTracks.count; aTrackIndex++)
         {
             ReanimatorTrackInstance* aTrackInstance = &aCreditsReanim->mTrackInstances[aTrackIndex];
-            
-            if (aTrackInstance == aCreditsReanim->GetTrackInstanceByName("Background") &&
-                (aCreditsReanim->mReanimationType != ReanimationType::REANIM_CREDITS_MAIN2 || aCreditsReanim->mReanimationType == ReanimationType::REANIM_CREDITS_MAIN2 && aCreditsReanim->mLastFrameTime >= 0.328125f) &&
-                (aCreditsReanim->mReanimationType != ReanimationType::REANIM_CREDITS_MAIN3 || aCreditsReanim->mReanimationType == ReanimationType::REANIM_CREDITS_MAIN3 && aCreditsReanim->mLastFrameTime >= 0.376899f)) {
-                g->TranslateF(-240, -60);
-            }
 
             if (aTrackInstance->mRenderGroup == 1)
             {
