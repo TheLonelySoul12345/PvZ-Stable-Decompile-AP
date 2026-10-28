@@ -70,6 +70,7 @@
 #include "Lawn/Widget/ArchipelagoReconfigDialog.h"
 #include "Lawn/Widget/ArchipelagoStatusDialog.h"
 #include "Lawn/Widget/ArchipelagoTextClient.h"
+#include "Lawn/Widget/HintClientDialog.h"
 #include "SexyAppFramework/APData.h"
 #include "SexyAppFramework/APWrapper.h"
 
@@ -465,6 +466,8 @@ bool LawnApp::UpdateAppStep(bool* updated)
 
 	if (mExitToTop)
 		return false;
+	
+	mAP->Poll();
 
 	if (mUpdateAppState == UPDATESTATE_PROCESS_DONE)
 		mUpdateAppState = UPDATESTATE_MESSAGES;
@@ -1742,6 +1745,28 @@ void LawnApp::DoArchipelagoOptionsDialog()
 		CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
 		AddDialog(Dialogs::DIALOG_APOPTIONS, aDialog);
 	});
+}
+
+void LawnApp::DoHintClient()
+{
+	this->EnsureArchipelagoConnected([this]
+	{
+		HintClientDialog* aDialog = new HintClientDialog(this);
+		AddDialog(Dialogs::DIALOG_HINTCLIENT, aDialog);
+		mWidgetManager->SetFocus(aDialog);
+	});
+}
+
+bool LawnApp::KillHintClient()
+{
+	if (GetDialog(Dialogs::DIALOG_HINTCLIENT))
+	{
+		KillDialog(Dialogs::DIALOG_HINTCLIENT);
+		ClearUpdateBacklog(false);
+		return true;
+	}
+
+	return false;
 }
 
 //0x450E20

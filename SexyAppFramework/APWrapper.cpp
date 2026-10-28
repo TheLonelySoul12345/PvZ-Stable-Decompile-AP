@@ -400,6 +400,11 @@ void APWrapper::Connect(const std::string& server_name, const std::string& slot_
     });
     d->mAP->set_bounced_handler([this](const nlohmann::json& bounce_data)
     {
+        if (!bounce_data.is_object() || !bounce_data.contains("tags"))
+        {
+            return;
+        }
+        
         auto tags = bounce_data["tags"];
         if (tags.size() > 0)
         {

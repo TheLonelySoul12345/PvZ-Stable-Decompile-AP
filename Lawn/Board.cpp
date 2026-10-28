@@ -238,10 +238,16 @@ Board::Board(LawnApp* theApp)
 #endif
 	mIsReplay = false;
 
+	mHintClientButton = nullptr;
 	if (mApp->mGameMode == GameMode::GAMEMODE_CHALLENGE_ZEN_GARDEN || mApp->mGameMode == GameMode::GAMEMODE_TREE_OF_WISDOM)
 	{
 		mMenuButton->SetLabel(_S("[MAIN_MENU_BUTTON]"));
 		mMenuButton->Resize(628, -10, 163, 46);
+		
+		mHintClientButton = new GameButton(0);
+		mHintClientButton->mDrawStoneButton = true;
+		mHintClientButton->SetLabel("Hints");
+		mHintClientButton->Resize(628, 36, 163, 46);
 
 		if (mApp->IsScreenSaver())
 		{
@@ -805,6 +811,10 @@ Board::~Board()
 	if (mMenuButton)
 	{
 		delete mMenuButton;
+	}
+	if (mHintClientButton)
+	{
+		delete mHintClientButton;
 	}
 #ifdef _REPLANTED_SPEED_CONTROL
 	if (mSlowdownButton)
@@ -4208,6 +4218,7 @@ void Board::UpdateCursor()
 	switch (aHitResult.mObjectType)
 	{
 	case GameObjectType::OBJECT_TYPE_MENU_BUTTON:
+	case GameObjectType::OBJECT_TYPE_HINT_CLIENT_BUTTON:
 	case GameObjectType::OBJECT_TYPE_STORE_BUTTON:
 	case GameObjectType::OBJECT_TYPE_SHOVEL:
 	case GameObjectType::OBJECT_TYPE_WATERING_CAN:
@@ -5568,6 +5579,11 @@ bool Board::MouseHitTest(int x, int y, HitResult* theHitResult)
 		theHitResult->mObjectType = GameObjectType::OBJECT_TYPE_MENU_BUTTON;
 		return true;
 	}
+	if (mHintClientButton && mHintClientButton->IsMouseOver() && CanInteractWithBoardButtons())
+	{
+		theHitResult->mObjectType = GameObjectType::OBJECT_TYPE_HINT_CLIENT_BUTTON;
+		return true;
+	}
 	else if (mStoreButton && mStoreButton->IsMouseOver() && CanInteractWithBoardButtons())
 	{
 		theHitResult->mObjectType = GameObjectType::OBJECT_TYPE_STORE_BUTTON;
@@ -5842,7 +5858,7 @@ void Board::MouseDown(int x, int y, int theClickCount)
 	if (mChallenge->MouseDown(x, y, theClickCount, &aHitResult))
 		return;
 
-	if (mMenuButton->IsMouseOver() && CanInteractWithBoardButtons() && theClickCount > 0)
+	if ((mMenuButton->IsMouseOver() || (mHintClientButton && mHintClientButton->IsMouseOver())) && CanInteractWithBoardButtons() && theClickCount > 0)
 	{
 		mApp->PlaySample(Sexy::SOUND_GRAVEBUTTON);
 	}
@@ -6097,6 +6113,15 @@ void Board::MouseUp(int x, int y, int theClickCount)
 				mApp->mBoardResult = BoardResult::BOARDRESULT_QUIT;
 				mApp->DoBackToMain();
 			}
+		}
+		else if (mHintClientButton && mHintClientButton->IsMouseOver())
+		{
+			mHintClientButton->mIsOver = false;
+			mHintClientButton->mIsDown = false;
+			UpdateCursor();
+			ClearCursor();
+			
+			mApp->DoHintClient();
 		}
 		else if(mStoreButton && mStoreButton->IsMouseOver())
 		{
@@ -7469,6 +7494,10 @@ void Board::Update()
 		mMenuButton->mDisabled = aDisabled;
 	}
 	mMenuButton->Update();
+	if (mHintClientButton)
+	{
+		mHintClientButton->Update();
+	}
 	if (mStoreButton)
 	{
 		mStoreButton->mDisabled = aDisabled;
@@ -10141,6 +10170,10 @@ void Board::DrawUITop(Graphics* g)
 	//DrawUIBottom(g);
 
 	mMenuButton->Draw(g);
+	if (mHintClientButton)
+	{
+		mHintClientButton->Draw(g);
+	}
 
 	if (!mApp->IsScreenSaver() && StageHasFog())
 	{

@@ -33,6 +33,7 @@ protected:
 		NewOptionsDialog_PauseOnLostFocus,
 		NewOptionsDialog_Options2,
 		NewOptionsDialog_ApOptions,
+		NewOptionsDialog_HintClient,
 	};
 
 public:
@@ -51,6 +52,7 @@ public:
 	LawnStoneButton*		mLanguageButton;
 	LawnStoneButton*		mOptions2Button;						//+0x174
 	LawnStoneButton*		mApOptionsButton;						//+0x174
+	LawnStoneButton*        mHintClientButton;
 	bool					mFromGameSelector;					//+0x17C
 
 public:

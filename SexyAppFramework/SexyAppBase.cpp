@@ -5966,7 +5966,6 @@ void SexyAppBase::DoMainLoop()
 	{
 		if (mExitToTop)
 			mExitToTop = false;
-		mAP->Poll();
 		UpdateApp();
 	}
 }
@@ -5978,6 +5977,8 @@ bool SexyAppBase::UpdateAppStep(bool* updated)
 
 	if (mExitToTop)
 		return false;
+	
+	mAP->Poll();
 
 	if (mUpdateAppState == UPDATESTATE_PROCESS_DONE)
 		mUpdateAppState = UPDATESTATE_MESSAGES;

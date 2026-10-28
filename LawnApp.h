@@ -219,6 +219,8 @@ public:
 	void							FinishCreateUserDialog(bool isYes);
 	void							DoArchipelagoStatusDialog();
 	void							DoArchipelagoOptionsDialog();
+	void							DoHintClient();
+	bool							KillHintClient();
 	void							DoConfirmDeleteUserDialog(const SexyString& theName);
 	void							FinishConfirmDeleteUserDialog(bool isYes);
 	void							DoRenameUserDialog(const SexyString& theName);

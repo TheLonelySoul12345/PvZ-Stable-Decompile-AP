@@ -709,6 +709,7 @@ EXIT /B 0</Command>
     <ClCompile Include="..\Lawn\Widget\ArchipelagoReconfigDialog.cpp" />
     <ClCompile Include="..\Lawn\Widget\ArchipelagoStatusDialog.cpp" />
     <ClCompile Include="..\Lawn\Widget\ArchipelagoTextClient.cpp" />
+    <ClCompile Include="..\Lawn\Widget\HintClientDialog.cpp" />
     <ClCompile Include="..\Lawn\Widget\ImageScrollbar.cpp" />
     <ClCompile Include="..\Lawn\Widget\LanguageScreen.cpp" />
     <ClCompile Include="..\Lawn\Widget\MoreSettingsDialog.cpp" />
@@ -1538,6 +1539,7 @@ EXIT /B 0</Command>
     <ClInclude Include="..\Lawn\Widget\ArchipelagoReconfigDialog.h" />
     <ClInclude Include="..\Lawn\Widget\ArchipelagoStatusDialog.h" />
     <ClInclude Include="..\Lawn\Widget\ArchipelagoTextClient.h" />
+    <ClInclude Include="..\Lawn\Widget\HintClientDialog.h" />
     <ClInclude Include="..\Lawn\Widget\ImageScrollbar.h" />
     <ClInclude Include="..\Lawn\Widget\LanguageScreen.h" />
     <ClInclude Include="..\Lawn\Widget\MoreSettingsDialog.h" />

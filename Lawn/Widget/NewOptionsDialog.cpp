@@ -29,6 +29,7 @@ NewOptionsDialog::NewOptionsDialog(LawnApp* theApp, bool theFromGameSelector) :
     mBackToMainButton = MakeButton(NewOptionsDialog::NewOptionsDialog_MainMenu, this, _S("[MAIN_MENU_BUTTON]"));
     mOptions2Button = MakeButton(NewOptionsDialog::NewOptionsDialog_Options2, this, _S("Game Options"));
     mApOptionsButton = MakeButton(NewOptionsDialog::NewOptionsDialog_ApOptions, this, _S("AP Reconfig"));
+    mHintClientButton = MakeButton(NewOptionsDialog::NewOptionsDialog_HintClient, this, _S("Hints"));
 
     /* mGameplayButton = MakeButton(NewOptionsDialog::NewOptionsDialog_VideoGraphics, this, _S("[GAMEPLAY_SETTINGS_BUTTON]"));
      mControllerButton = MakeButton(NewOptionsDialog::NewOptionsDialog_SoundSystem, this, _S("[CONTROLLER_BUTTON]"));
@@ -141,6 +142,7 @@ NewOptionsDialog::~NewOptionsDialog()
     delete mBackToGameButton;
     delete mOptions2Button;
     delete mApOptionsButton;
+    delete mHintClientButton;
     /*delete mGameplayButton;
     delete mControllerButton;
     delete mLanguageButton;*/
@@ -170,6 +172,7 @@ void NewOptionsDialog::AddedToManager(Sexy::WidgetManager* theWidgetManager)
     AddWidget(mBackToGameButton);
     AddWidget(mOptions2Button);
     AddWidget(mApOptionsButton);
+    AddWidget(mHintClientButton);
 }
 
 //0x45C930
@@ -190,6 +193,7 @@ void NewOptionsDialog::RemovedFromManager(Sexy::WidgetManager* theWidgetManager)
     RemoveWidget(mBackToGameButton);
     RemoveWidget(mOptions2Button);
     RemoveWidget(mApOptionsButton);
+    RemoveWidget(mHintClientButton);
 }
 
 //0x45C9D0
@@ -203,6 +207,7 @@ void NewOptionsDialog::Resize(int theX, int theY, int theWidth, int theHeight)
     mPauseOnLostFocusCheckbox->Resize(284, 237, 46, 45);
     mOptions2Button->Resize(107, 237, 209, 45);
     mApOptionsButton->Resize(107, 237, 209, 45);
+    mHintClientButton->Resize(107, 237, 209, 45);
     mAlmanacButton->Resize(107, 241, 209, 46);
     mRestartButton->Resize(mAlmanacButton->mX, mAlmanacButton->mY + 43, 209, 46);
     mBackToMainButton->Resize(mRestartButton->mX, mRestartButton->mY + 43, 209, 46);
@@ -233,7 +238,7 @@ void NewOptionsDialog::Resize(int theX, int theY, int theWidth, int theHeight)
     }
 
     int y = mBackToMainButton->mY;
-    for (const auto button : {mBackToMainButton, mRestartButton, mAlmanacButton, mApOptionsButton, mOptions2Button})
+    for (const auto button : {mBackToMainButton, mRestartButton, mAlmanacButton, mApOptionsButton, mHintClientButton, mOptions2Button})
     {
         if (button->mVisible)
         {
@@ -506,6 +511,11 @@ void NewOptionsDialog::ButtonDepress(int theId)
     case NewOptionsDialog::NewOptionsDialog_ApOptions:
         {
             mApp->DoArchipelagoOptionsDialog();
+            break;
+        }
+    case NewOptionsDialog::NewOptionsDialog_HintClient:
+        {
+            mApp->DoHintClient();
             break;
         }
     }

@@ -142,6 +142,7 @@ public:
 	MessageWidget*					mAdvice;												//+0x140
 	SeedBank*						mSeedBank;												//+0x144
 	GameButton*						mMenuButton;											//+0x148
+	GameButton*						mHintClientButton;
 #ifdef _REPLANTED_SPEED_CONTROL
 	NewLawnButton*					mSlowdownButton;
 	NewLawnButton*					mPauseButton;
