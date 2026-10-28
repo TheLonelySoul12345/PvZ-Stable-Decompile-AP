@@ -248,6 +248,11 @@ void HintClientDialog::Draw(Graphics* g)
 
 void HintClientDialog::MouseDown(int x, int y, int theClickCount)
 {
+    if (!this->mHasFocus)
+    {
+        mWidgetManager->SetFocus(this);
+    }
+    
     if (mCloseButton->IsMouseOver() || mNewHintButton->IsMouseOver())
         mApp->PlaySample(Sexy::SOUND_TAP);
     
@@ -293,7 +298,7 @@ void HintClientDialog::MouseUp(int x, int y, int theClickCount)
     if (mCloseButton->IsMouseOver()) mApp->KillHintClient();
     if (mNewHintButton->IsMouseOver())
     {
-		mApp->DoDialog(Dialogs::DIALOG_INFO, true, "Create New Hint", "Use !hint in the text client to create a new hint!", "OK", Dialog::BUTTONS_FOOTER);
+        mApp->DoRequestNewHintDialog();
     }
     if (d->hoveredHint != -1)
     {

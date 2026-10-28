@@ -71,6 +71,7 @@
 #include "Lawn/Widget/ArchipelagoStatusDialog.h"
 #include "Lawn/Widget/ArchipelagoTextClient.h"
 #include "Lawn/Widget/HintClientDialog.h"
+#include "Lawn/Widget/NewHintDialog.h"
 #include "SexyAppFramework/APData.h"
 #include "SexyAppFramework/APWrapper.h"
 
@@ -1767,6 +1768,19 @@ bool LawnApp::KillHintClient()
 	}
 
 	return false;
+}
+
+void LawnApp::DoRequestNewHintDialog()
+{
+	NewHintDialog* aDialog = new NewHintDialog(this);
+	CenterDialog(aDialog, aDialog->mWidth, aDialog->mHeight);
+	AddDialog(Dialogs::DIALOG_REQUEST_NEW_HINT, aDialog);
+	mWidgetManager->SetFocus(aDialog);
+}
+
+void LawnApp::KillRequestNewHintDialog()
+{
+	KillDialog(Dialogs::DIALOG_REQUEST_NEW_HINT);
 }
 
 //0x450E20

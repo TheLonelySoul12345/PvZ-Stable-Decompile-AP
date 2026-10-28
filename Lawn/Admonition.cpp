@@ -19,6 +19,7 @@ Admonition::Admonition()
 void Admonition::Draw(Sexy::Graphics* g)
 {
     g->PushState();
+    g->SetClipRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
     auto ascent = FONT_PICO129->GetAscent();
     auto text_width = FONT_PICO129->StringWidth(this->text);
     auto text_y = this->admonish_downwards ? this->area.mY + this->area.mHeight + TRIANGLE_SIZE + PADDING : this->area.mY - TRIANGLE_SIZE - PADDING - ascent;

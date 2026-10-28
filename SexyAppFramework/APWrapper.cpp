@@ -15,6 +15,7 @@ class APWrapper_Private {
 public:
     std::map<uint64_t, std::function<void(const std::string&)>> server_chat_listeners;
     std::map<uint64_t, std::function<void(const std::string&)>> countdown_chat_listeners;
+    std::map<uint64_t, std::function<void(const std::string&)>> user_command_listeners;
     std::map<uint64_t, std::function<void(const APItem&, const int&)>> item_sent_listeners;
     std::map<uint64_t, std::function<void(const std::list<APItem>&)>> item_received_listeners;
     std::map<uint64_t, std::function<void()>> connection_complete_listener;
@@ -292,6 +293,13 @@ void APWrapper::Connect(const std::string& server_name, const std::string& slot_
             for (const auto& countdown_chat_listener : this->d->countdown_chat_listeners)
             {
                 countdown_chat_listener.second(countdown_remaining);
+            }
+        }
+        else if (print_line.type == "CommandResult")
+        {
+            for (const auto& user_command_listener : this->d->user_command_listeners)
+            {
+                user_command_listener.second(concatenated_message);
             }
         }
         
@@ -905,6 +913,16 @@ void APWrapper::SetAvoidHint(Hint hint) const
     d->mAP->UpdateHint(hint.finding_player, hint.location, APClient::HintStatus::HINT_AVOID);
 }
 
+int APWrapper::RequiredHintPoints() const
+{
+    return d->mAP->get_hint_cost_points();
+}
+
+int APWrapper::AvailableHintPoints() const
+{
+    return d->mAP->get_hint_points();
+}
+
 void APWrapper::EnableDeathLink(bool enable) const
 {
     if (!enable)
@@ -1101,6 +1119,14 @@ ListenerHandle* APWrapper::AddCountdownChatMessageListener(std::function<void(co
     this->d->countdown_chat_listeners.insert_or_assign(id, listener);
     
     return new ListenerHandle([this, id] { this->d->countdown_chat_listeners.erase(id); });
+}
+
+ListenerHandle* APWrapper::AddUserCommandChatMessageListener(std::function<void(const std::string&)> listener) const
+{
+    auto id = d->next_listener_id++;
+    this->d->user_command_listeners.insert_or_assign(id, listener);
+    
+    return new ListenerHandle([this, id] { this->d->user_command_listeners.erase(id); });
 }
 
 ListenerHandle* APWrapper::AddItemsSentListener(std::function<void(const APItem&, const int&)> listener) const

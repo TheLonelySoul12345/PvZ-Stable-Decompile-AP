@@ -168,6 +168,8 @@ public:
     void SetPriorityHint(Hint hint) const;
     void SetNoPriorityHint(Hint hint) const;
     void SetAvoidHint(Hint hint) const;
+    int RequiredHintPoints() const;
+    int AvailableHintPoints() const;
     
     void EnableDeathLink(bool enable) const;
     void SendDeathLink(const std::string& reason) const;
@@ -197,6 +199,7 @@ public:
     
     ListenerHandle* AddServerChatMessageListener(std::function<void(const std::string&)>) const;
     ListenerHandle* AddCountdownChatMessageListener(std::function<void(const std::string&)>) const;
+    ListenerHandle* AddUserCommandChatMessageListener(std::function<void(const std::string&)>) const;
     ListenerHandle* AddItemsSentListener(std::function<void(const APItem&, const int&)>) const;
     ListenerHandle* AddItemsReceivedListener(std::function<void(const std::list<APItem>&)>) const;
     ListenerHandle* AddConnectionCompleteListener(std::function<void()>) const;
