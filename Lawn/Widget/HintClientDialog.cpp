@@ -326,7 +326,7 @@ void HintClientDialog::MouseMove(int x, int y)
         if (d->hoveredHint != -1)
         {
             auto hint = d->hints[d->hoveredHint];
-            if (hint.receiving_player == mApp->mAP->MySlot() && d->hoveredSection == 4)
+            if (hint.receiving_player == mApp->mAP->MySlot() && d->hoveredSection == 4 && !hint.found)
             {
                 mToolTip->SetLabel("Click to change status");
                 mToolTip->mVisible = true;
@@ -367,7 +367,7 @@ void HintClientDialog::MouseUp(int x, int y, int theClickCount)
     if (d->hoveredHint != -1 && d->hoveredSection == 4)
     {
         auto hint = &d->hints[d->hoveredHint];
-        if (hint->receiving_player == mApp->mAP->MySlot())
+        if (hint->receiving_player == mApp->mAP->MySlot() && !hint->found)
         {
             if (hint->status == 30) // Priority
             {
@@ -405,7 +405,7 @@ void HintClientDialog::MouseWheel(int theDelta)
 void HintClientDialog::UpdateHints()
 {
     d->hints = mApp->mAP->Hints();
-    std::stable_sort(d->hints.begin(), d->hints.end(), [](const Hint& a, const Hint& b)
+    ranges::stable_sort(d->hints, [](const Hint& a, const Hint& b)
     {
         return b.found;
     });
