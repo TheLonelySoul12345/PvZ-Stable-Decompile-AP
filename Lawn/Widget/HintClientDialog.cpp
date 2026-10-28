@@ -11,7 +11,8 @@
 
 struct HintClientDialogPrivate
 {
-    std::list<Hint> hints;
+    std::vector<Hint> hints;
+    int hoveredHint = -1;
     MusicTune music;
 };
 
@@ -111,16 +112,14 @@ void HintClientDialog::Update()
     mCloseButton->Update();
 	mNewHintButton->Update();
     mScrollbar->Update();
+    
+    auto cursor = CURSOR_POINTER;
 
     if (mApp->mWidgetManager->mOverWidget)
     {
         if (mCloseButton->IsMouseOver() || mNewHintButton->IsMouseOver())
         {
-            mApp->SetCursor(CURSOR_HAND);
-        }
-        else
-        {
-            mApp->SetCursor(CURSOR_POINTER);
+            cursor = CURSOR_HAND;
         }
     }
 
@@ -132,7 +131,17 @@ void HintClientDialog::Update()
     	mScrollbar->mScrollValue = ClampFloat(mScrollbar->mScrollValue += mScrollAmount * aScrollSpeed, 0, mScrollbar->mScrollRange);
     	mScrollAmount *= 0.9f;
     }
+    
+    if (d->hoveredHint != -1)
+    {
+        auto hint = d->hints[d->hoveredHint];
+        if (hint.receiving_player == mApp->mAP->MySlot() && !hint.found)
+        {
+            cursor = CURSOR_HAND;
+        }
+    }
 
+    mApp->SetCursor(cursor);
     MarkDirty();
 }
 
@@ -248,12 +257,69 @@ void HintClientDialog::MouseDown(int x, int y, int theClickCount)
     }
 }
 
+void HintClientDialog::MouseMove(int x, int y)
+{
+    LawnDialog::MouseMove(x, y);
+    
+    d->hoveredHint = -1;
+    
+    // Hit test the table
+    if (Rect(20, 115, BOARD_WIDTH - 40, BOARD_HEIGHT - 150).Contains(x, y))
+    {
+        auto x_sender = 20;
+        auto x_receiver = 100;
+        auto x_item = 220;
+        auto x_location = 400;
+        auto x_status = 620;
+        
+        // Find out which hint we are hovering over
+        auto firstY = 113 - mScrollbar->mScrollValue;
+        auto itemHeight = 20;
+        
+        auto yOffset = y - firstY;
+        auto index = static_cast<int>(yOffset / itemHeight);
+        if (index < 0) index = -1;
+        if (index >= d->hints.size()) index = -1;
+        
+        if (index != -1)
+        {
+            d->hoveredHint = index;
+        }
+    }
+}
+
 void HintClientDialog::MouseUp(int x, int y, int theClickCount)
 {
     if (mCloseButton->IsMouseOver()) mApp->KillHintClient();
     if (mNewHintButton->IsMouseOver())
     {
 		mApp->DoDialog(Dialogs::DIALOG_INFO, true, "Create New Hint", "Use !hint in the text client to create a new hint!", "OK", Dialog::BUTTONS_FOOTER);
+    }
+    if (d->hoveredHint != -1)
+    {
+        auto hint = &d->hints[d->hoveredHint];
+        if (hint->receiving_player == mApp->mAP->MySlot())
+        {
+            if (hint->status == 30) // Priority
+            {
+                mApp->mAP->SetNoPriorityHint(*hint);
+                hint->status = 10;
+		        mApp->PlaySample(Sexy::SOUND_TAP);
+                
+            }
+            else if (hint->status == 10) // No Priority
+            {
+                mApp->mAP->SetAvoidHint(*hint);
+                hint->status = 20;
+		        mApp->PlaySample(Sexy::SOUND_TAP);
+            }
+            else
+            {
+                mApp->mAP->SetPriorityHint(*hint);
+                hint->status = 30;
+		        mApp->PlaySample(Sexy::SOUND_TAP);
+            }
+        }
     }
 }
 

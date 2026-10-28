@@ -864,10 +864,10 @@ std::string APWrapper::LocationName(const int64_t location, std::string game_nam
     return d->mAP->get_location_name(location, game_name);
 }
 
-std::list<Hint> APWrapper::Hints()
+std::vector<Hint> APWrapper::Hints()
 {
     auto hint_data_storage = ReadDataStorage(DataStorageSlot(KnownDataStorageKey::Hints));
-    std::list<Hint> hints;
+    std::vector<Hint> hints;
     for (auto hint_json : hint_data_storage)
     {
         Hint hint;
@@ -888,6 +888,21 @@ std::list<Hint> APWrapper::Hints()
 void APWrapper::HintLocations(std::list<int64_t> locations) const
 {
     d->mAP->CreateHints(locations, -1, APClient::HintStatus::HINT_UNSPECIFIED);
+}
+
+void APWrapper::SetPriorityHint(Hint hint) const
+{
+    d->mAP->UpdateHint(hint.finding_player, hint.location, APClient::HintStatus::HINT_PRIORITY);
+}
+
+void APWrapper::SetNoPriorityHint(Hint hint) const
+{
+    d->mAP->UpdateHint(hint.finding_player, hint.location, APClient::HintStatus::HINT_NO_PRIORITY);
+}
+
+void APWrapper::SetAvoidHint(Hint hint) const
+{
+    d->mAP->UpdateHint(hint.finding_player, hint.location, APClient::HintStatus::HINT_AVOID);
 }
 
 void APWrapper::EnableDeathLink(bool enable) const

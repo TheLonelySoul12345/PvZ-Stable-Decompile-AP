@@ -36,6 +36,7 @@ public:
     void RemovedFromManager(WidgetManager* theWidgetManager) override;
     void Draw(Graphics* g) override;
     void MouseDown(int x, int y, int theClickCount) override;
+    void MouseMove(int x, int y) override;
     void MouseUp(int x, int y, int theClickCount) override;
     void MouseWheel(int theDelta) override;
     

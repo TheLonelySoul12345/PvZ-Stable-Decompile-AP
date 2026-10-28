@@ -163,8 +163,11 @@ public:
     void SetGoal() const;
     std::string LocationName(const int64_t location, std::string game_name);
     
-    std::list<Hint> Hints();
+    std::vector<Hint> Hints();
     void HintLocations(std::list<int64_t> locations) const;
+    void SetPriorityHint(Hint hint) const;
+    void SetNoPriorityHint(Hint hint) const;
+    void SetAvoidHint(Hint hint) const;
     
     void EnableDeathLink(bool enable) const;
     void SendDeathLink(const std::string& reason) const;
