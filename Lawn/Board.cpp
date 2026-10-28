@@ -261,7 +261,7 @@ Board::Board(LawnApp* theApp)
 			mStoreButton->mOverImage = IMAGE_ZENSHOPBUTTON_HIGHLIGHT;
 			mStoreButton->mDownImage = IMAGE_ZENSHOPBUTTON_HIGHLIGHT;
 			mStoreButton->mParentWidget = this;
-			mStoreButton->Resize(678, 33, IMAGE_ZENSHOPBUTTON->mWidth, 40);
+			mStoreButton->Resize(678, 93, IMAGE_ZENSHOPBUTTON->mWidth, 40);
 		}
 		else
 		{
