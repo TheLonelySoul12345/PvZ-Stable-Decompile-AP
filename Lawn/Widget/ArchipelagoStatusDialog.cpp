@@ -1,6 +1,7 @@
 #include "ArchipelagoStatusDialog.h"
 
 #include <fstream>
+#include <regex>
 #include <nlohmann/json.hpp>
 
 #include "GameButton.h"
@@ -9,6 +10,7 @@
 #include "../../Resources.h"
 #include "../../SexyAppFramework/APWrapper.h"
 #include "../Board.h"
+#include "../Admonition.h"
 
 ArchipelagoStatusDialog::ArchipelagoStatusDialog(LawnApp* theApp) : LawnDialog(
     	theApp,
@@ -38,6 +40,9 @@ ArchipelagoStatusDialog::ArchipelagoStatusDialog(LawnApp* theApp) : LawnDialog(
     mConnectButton = MakeButton(20, this, "Connect to Archipelago");
     mCloseButton = MakeButton(21, this, theApp->mBoard ? "Main Menu" : "Close");
 	
+	mAdmonition = nullptr;
+	mHostHasFocus = false;
+	
     CalcSize(110, 300);
 	
 	mConnectionListener = mApp->mAP->AddConnectionCompleteListener([this] { UpdateArchipelagoStatus(); });
@@ -66,6 +71,11 @@ ArchipelagoStatusDialog::~ArchipelagoStatusDialog()
 	
 	delete mConnectButton;
 	delete mCloseButton;
+	
+	if (mAdmonition)
+	{
+		delete mAdmonition;
+	}
 }
 
 void ArchipelagoStatusDialog::AddedToManager(WidgetManager* theWidgetManager)
@@ -131,6 +141,11 @@ void ArchipelagoStatusDialog::Draw(Graphics* g)
 		TodDrawString(g, mApp->mAP->SlotName(), mContentInsets.mLeft + 16, mSlotEditWidget->Top() + 18, FONT_PICO129, aTextColor, DrawStringJustification::DS_ALIGN_LEFT);
 		TodDrawString(g, mApp->mAP->Password(), mContentInsets.mLeft + 16, mPasswordEditWidget->Top() + 18, FONT_PICO129, aTextColor, DrawStringJustification::DS_ALIGN_LEFT);
 	}
+	
+	if (mAdmonition)
+	{
+		mAdmonition->Draw(g);
+	}
 }
 
 void ArchipelagoStatusDialog::EditWidgetText(int theId, const SexyString& theString)
@@ -175,6 +190,12 @@ void ArchipelagoStatusDialog::ButtonDepress(int theId)
 		break;
 	case 20:
 		// Connect button
+		if (mAdmonition)
+		{
+			delete mAdmonition;
+			mAdmonition = nullptr;
+		}
+		
 		if (mApp->mAP->ConnectionStatus() == APWrapper::ConnectionStatus::Disconnected)
 		{
 			// Clear the current profile
@@ -254,5 +275,59 @@ void ArchipelagoStatusDialog::BackTab()
 	else if (mWidgetManager->mFocusWidget == mPasswordEditWidget)
 	{
 		mWidgetManager->SetFocus(mSlotEditWidget);
+	}
+}
+
+void ArchipelagoStatusDialog::Update()
+{
+	LawnDialog::Update();
+	
+	if (mWidgetManager->mFocusWidget == mHostEditWidget)
+	{
+		mHostHasFocus = true;
+	}
+	else
+	{
+		if (mHostHasFocus)
+		{
+			if (mAdmonition)
+			{
+				delete mAdmonition;
+				mAdmonition = nullptr;
+			}
+			
+			std::string possible_autofix;
+			auto text = mHostEditWidget->mString;
+			
+			if (!text.starts_with("ws:") && !text.starts_with("wss:"))
+			{
+				std::regex ap_regex(R"(archipelago.+?(\d{3,5}))");
+				std::smatch ap_results;
+				
+				if (std::regex_search(text, ap_results, ap_regex))
+				{
+					auto port = ap_results[1];
+					possible_autofix = "archipelago.gg:" + port.str();
+				}
+				
+				std::regex port_regex(R"(^\d{3,5}$)");
+				std::smatch port_results;
+				if (std::regex_search(text, port_results, port_regex))
+				{
+					auto port = port_results[0];
+					possible_autofix = "archipelago.gg:" + port.str();
+				}
+			}
+			
+			
+			if (!possible_autofix.empty() && possible_autofix != text)
+			{
+				mAdmonition = new Admonition();
+				mAdmonition->SetArea(mHostEditWidget->GetRect());
+				mAdmonition->SetText("Did you mean: " + possible_autofix);
+			}
+			
+			mHostHasFocus = false;
+		}
 	}
 }

@@ -4,6 +4,7 @@
 #include "LawnDialog.h"
 #include "../../SexyAppFramework/EditListener.h"
 
+class Admonition;
 class ListenerHandle;
 class LawnApp;
 
@@ -18,6 +19,9 @@ public:
 	LawnEditWidget*			mPasswordEditWidget;
 	LawnStoneButton*		mConnectButton;
 	LawnStoneButton*		mCloseButton;
+	Admonition*             mAdmonition;
+	
+	bool                    mHostHasFocus;
 	
 	ListenerHandle*			mConnectionListener;
 	ListenerHandle*			mDisconnectionListener;
@@ -39,6 +43,7 @@ public:
 	void UpdateArchipelagoStatus();
 	void Tab() override;
 	void BackTab() override;
+	void Update() override;
 };
 
 #endif
