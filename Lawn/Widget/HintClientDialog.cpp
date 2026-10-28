@@ -8,11 +8,19 @@
 #include "../../Resources.h"
 #include "../../Sexy.TodLib/TodStringFile.h"
 #include "../../SexyAppFramework/APWrapper.h"
+#include "../../Lawn/ToolTipWidget.h"
+
+const auto x_sender = 20;
+const auto x_receiver = 100;
+const auto x_item = 220;
+const auto x_location = 350;
+const auto x_status = 620;
 
 struct HintClientDialogPrivate
 {
     std::vector<Hint> hints;
     int hoveredHint = -1;
+    int hoveredSection = -1;
     MusicTune music;
 };
 
@@ -78,6 +86,8 @@ HintClientDialog::HintClientDialog(LawnApp* theApp) : LawnDialog(theApp, DIALOG_
     mScrollbar->mScrollRange = 100;
     mScrollbar->Resize(BOARD_WIDTH - 28, 110, 8, BOARD_HEIGHT - 150);
     mScrollbar->mViewport = Rect(20, 110, BOARD_WIDTH - 40, BOARD_HEIGHT - 150);
+    
+    mToolTip = new ToolTipWidget();
 
     d->music = mApp->mMusic->mCurMusicTune;
     if (!mApp->mBoard || !mApp->mBoard->mPaused)
@@ -103,6 +113,7 @@ HintClientDialog::~HintClientDialog()
     if (mCloseButton) delete mCloseButton;
 	if (mNewHintButton)	delete mNewHintButton;
 	if (mScrollbar)		delete mScrollbar;
+    delete mToolTip;
     delete mAPDataStorageValueChangedListener;
     delete d;
 }
@@ -135,7 +146,7 @@ void HintClientDialog::Update()
     if (d->hoveredHint != -1)
     {
         auto hint = d->hints[d->hoveredHint];
-        if (hint.receiving_player == mApp->mAP->MySlot() && !hint.found)
+        if (hint.receiving_player == mApp->mAP->MySlot() && !hint.found && d->hoveredSection == 4)
         {
             cursor = CURSOR_HAND;
         }
@@ -169,70 +180,73 @@ void HintClientDialog::Draw(Graphics* g)
     mCloseButton->Draw(g);
     mNewHintButton->Draw(g);
     
+    auto titles = Color(40, 50, 90);
     auto black = Color(0, 0, 0);
     auto black_gray = Color(0, 0, 0, 100);
     
-    auto x_sender = 20;
-    auto x_receiver = 100;
-    auto x_item = 220;
-    auto x_location = 400;
-    auto x_status = 620;
-    
     auto y = 110;
+    auto central_viewport = Rect(20, 115, BOARD_WIDTH - 40, BOARD_HEIGHT - 150);
     
-    TodDrawString(g, "Sender", x_sender, y, Sexy::FONT_TINYBOLD, black, DrawStringJustification::DS_ALIGN_LEFT);
-    TodDrawString(g, "Receiver", x_receiver, y, Sexy::FONT_TINYBOLD, black, DrawStringJustification::DS_ALIGN_LEFT);
-    TodDrawString(g, "Item", x_item, y, Sexy::FONT_TINYBOLD, black, DrawStringJustification::DS_ALIGN_LEFT);
-    TodDrawString(g, "Location", x_location, y, Sexy::FONT_TINYBOLD, black, DrawStringJustification::DS_ALIGN_LEFT);
-    TodDrawString(g, "Status", x_status, y, Sexy::FONT_TINYBOLD, black, DrawStringJustification::DS_ALIGN_LEFT);
-    
-    y += 18;
-    y -= mScrollbar->mScrollValue;
-    
-    g->PushState();
-    g->SetClipRect(Rect(20, 115, BOARD_WIDTH - 40, BOARD_HEIGHT - 150));
-    for (auto hint : d->hints)
+    if (d->hints.empty())
     {
-        auto sender = mApp->mAP->PlayerDisplayName(hint.finding_player);
-        auto receiver = mApp->mAP->PlayerDisplayName(hint.receiving_player);
-        auto item = mApp->mAP->ItemName(hint.item, hint.receiving_player);
-        auto location = mApp->mAP->LocationName(hint.location, mApp->mAP->PlayerGameName(hint.finding_player));
-        
-        std::string status = "Unspecified";
-        if (hint.status == 10)
-        {
-            status = "No Priority";
-        }
-        else if (hint.status == 20)
-        {
-            status = "Avoid";
-        }
-        else if (hint.status == 30)
-        {
-            status = "Priority";
-        }
-        else if (hint.status == 40)
-        {
-            status = "Found";
-        }
-        
-        
-        auto fg = black;
-        if (hint.found)
-        {
-            fg = black_gray;
-        }
-        
-        
-        DrawStringBetween(g, sender, x_sender, x_receiver, y, Sexy::FONT_PICO129, fg);
-        DrawStringBetween(g, receiver, x_receiver, x_item, y, Sexy::FONT_PICO129, fg);
-        DrawStringBetween(g, item, x_item, x_location, y, Sexy::FONT_PICO129, fg);
-        DrawStringBetween(g, location, x_location, x_status, y, Sexy::FONT_PICO129, fg);
-        DrawStringBetween(g, status, x_status, BOARD_WIDTH - 20, y, Sexy::FONT_PICO129, fg);
-
-        y += 20;
+        TodDrawString(g, "No hints have been requested from the server", central_viewport.mX + central_viewport.mWidth / 2, central_viewport.mY + central_viewport.mHeight / 2, Sexy::FONT_BRIANNETOD16, titles, DrawStringJustification::DS_ALIGN_CENTER);
     }
-    g->PopState();
+    else
+    {
+        TodDrawString(g, "Sender", x_sender, y, Sexy::FONT_BRIANNETOD12, titles, DrawStringJustification::DS_ALIGN_LEFT);
+        TodDrawString(g, "Receiver", x_receiver, y, Sexy::FONT_BRIANNETOD12, titles, DrawStringJustification::DS_ALIGN_LEFT);
+        TodDrawString(g, "Item", x_item, y, Sexy::FONT_BRIANNETOD12, titles, DrawStringJustification::DS_ALIGN_LEFT);
+        TodDrawString(g, "Location", x_location, y, Sexy::FONT_BRIANNETOD12, titles, DrawStringJustification::DS_ALIGN_LEFT);
+        TodDrawString(g, "Status", x_status, y, Sexy::FONT_BRIANNETOD12, titles, DrawStringJustification::DS_ALIGN_LEFT);
+        
+        y += 18;
+        y -= mScrollbar->mScrollValue;
+        
+        g->PushState();
+        g->SetClipRect(central_viewport);
+        for (auto hint : d->hints)
+        {
+            auto sender = mApp->mAP->PlayerDisplayName(hint.finding_player);
+            auto receiver = mApp->mAP->PlayerDisplayName(hint.receiving_player);
+            auto item = mApp->mAP->ItemName(hint.item, hint.receiving_player);
+            auto location = mApp->mAP->LocationName(hint.location, mApp->mAP->PlayerGameName(hint.finding_player));
+            
+            std::string status = "Unspecified";
+            if (hint.status == 10)
+            {
+                status = "No Priority";
+            }
+            else if (hint.status == 20)
+            {
+                status = "Avoid";
+            }
+            else if (hint.status == 30)
+            {
+                status = "Priority";
+            }
+            else if (hint.status == 40)
+            {
+                status = "Found";
+            }
+            
+            
+            auto fg = black;
+            if (hint.found)
+            {
+                fg = black_gray;
+            }
+            
+            
+            DrawStringBetween(g, sender, x_sender, x_receiver, y, Sexy::FONT_PICO129, fg);
+            DrawStringBetween(g, receiver, x_receiver, x_item, y, Sexy::FONT_PICO129, fg);
+            DrawStringBetween(g, item, x_item, x_location, y, Sexy::FONT_PICO129, fg);
+            DrawStringBetween(g, location, x_location, x_status, y, Sexy::FONT_PICO129, fg);
+            DrawStringBetween(g, status, x_status, BOARD_WIDTH - 20, y, Sexy::FONT_PICO129, fg);
+
+            y += 20;
+        }
+        g->PopState();
+    }
 
     if (!mScrollbar->mDisabled)
     {
@@ -244,6 +258,8 @@ void HintClientDialog::Draw(Graphics* g)
     	mScrollbar->mButtonNoDraw = true;
     	g->PopState();
     }
+    
+    mToolTip->Draw(g);
 }
 
 void HintClientDialog::MouseDown(int x, int y, int theClickCount)
@@ -267,16 +283,11 @@ void HintClientDialog::MouseMove(int x, int y)
     LawnDialog::MouseMove(x, y);
     
     d->hoveredHint = -1;
+    mToolTip->mVisible = false;
     
     // Hit test the table
     if (Rect(20, 115, BOARD_WIDTH - 40, BOARD_HEIGHT - 150).Contains(x, y))
     {
-        auto x_sender = 20;
-        auto x_receiver = 100;
-        auto x_item = 220;
-        auto x_location = 400;
-        auto x_status = 620;
-        
         // Find out which hint we are hovering over
         auto firstY = 113 - mScrollbar->mScrollValue;
         auto itemHeight = 20;
@@ -290,7 +301,60 @@ void HintClientDialog::MouseMove(int x, int y)
         {
             d->hoveredHint = index;
         }
+        
+        if (x > x_status)
+        {
+            d->hoveredSection = 4;
+        }
+        else if (x > x_location)
+        {
+            d->hoveredSection = 3;
+        }
+        else if (x > x_item)
+        {
+            d->hoveredSection = 2;
+        }
+        else if (x > x_receiver)
+        {
+            d->hoveredSection = 1;
+        }
+        else
+        {
+            d->hoveredSection = 0;
+        }
+        
+        if (d->hoveredHint != -1)
+        {
+            auto hint = d->hints[d->hoveredHint];
+            if (hint.receiving_player == mApp->mAP->MySlot() && d->hoveredSection == 4)
+            {
+                mToolTip->SetLabel("Click to change status");
+                mToolTip->mVisible = true;
+            }
+            else if (d->hoveredSection == 3)
+            {
+                mToolTip->SetLabel(mApp->mAP->LocationName(hint.location, mApp->mAP->PlayerGameName(hint.finding_player)));
+                mToolTip->mVisible = FONT_PICO129->StringWidth(mToolTip->mLabel) > x_status - x_location;
+            }
+            else if (d->hoveredSection == 2)
+            {
+                mToolTip->SetLabel(mApp->mAP->ItemName(hint.item, hint.receiving_player));
+                mToolTip->mVisible = FONT_PICO129->StringWidth(mToolTip->mLabel) > x_location - x_item;
+            }
+            else if (d->hoveredSection == 1)
+            {
+                mToolTip->SetLabel(mApp->mAP->PlayerDisplayName(hint.receiving_player));
+                mToolTip->mVisible = FONT_PICO129->StringWidth(mToolTip->mLabel) > x_item - x_receiver;
+            }
+            else
+            {
+                mToolTip->SetLabel(mApp->mAP->PlayerDisplayName(hint.finding_player));
+                mToolTip->mVisible = FONT_PICO129->StringWidth(mToolTip->mLabel) > x_receiver - x_sender;
+            }
+        }
     }
+    
+    mToolTip->SetPosition(x + 10, y + 10);
 }
 
 void HintClientDialog::MouseUp(int x, int y, int theClickCount)
@@ -300,7 +364,7 @@ void HintClientDialog::MouseUp(int x, int y, int theClickCount)
     {
         mApp->DoRequestNewHintDialog();
     }
-    if (d->hoveredHint != -1)
+    if (d->hoveredHint != -1 && d->hoveredSection == 4)
     {
         auto hint = &d->hints[d->hoveredHint];
         if (hint->receiving_player == mApp->mAP->MySlot())
@@ -351,4 +415,5 @@ void HintClientDialog::UpdateHints()
     auto required_scroll = total_hint_height - viewport_height;
     if (required_scroll < 0) required_scroll = 0;
     mScrollbar->mScrollRange = required_scroll;
+    mScrollbar->SetDisabled(required_scroll == 0);
 }

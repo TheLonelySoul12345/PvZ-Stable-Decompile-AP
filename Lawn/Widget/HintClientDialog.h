@@ -1,6 +1,7 @@
 #pragma once
 #include "LawnDialog.h"
 
+class ToolTipWidget;
 class ListenerHandle;
 class ScrollbarWidget;
 class GameButton;
@@ -26,6 +27,7 @@ public:
 	ScrollbarWidget*			mScrollbar;
 	float						mScrollAmount;
     ListenerHandle* mAPDataStorageValueChangedListener;
+    ToolTipWidget* mToolTip;
     
     
     HintClientDialog(LawnApp* theApp);
