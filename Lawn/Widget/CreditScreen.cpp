@@ -732,14 +732,14 @@ void CreditScreen::DrawFinalCredits(Graphics* g)
 {
     TodDrawString(g, _S("[CREDITS_GAMENAME]"), BOARD_WIDTH / 2, 60, FONT_HOUSEOFTERROR28, Color::White, DrawStringJustification::DS_ALIGN_CENTER);
 
-    Rect aRectNames1(405, 90, 200, 200);
-    TodDrawStringWrapped(g, _S("[CREDITS_NAMES1]"), aRectNames1, FONT_HOUSEOFTERROR16, Color::White, DrawStringJustification::DS_ALIGN_LEFT);
-    Rect aRectRoles1(190, 90, 200, 200);
-    TodDrawStringWrapped(g, _S("[CREDITS_ROLES1]"), aRectRoles1, FONT_HOUSEOFTERROR16, Color::White, DrawStringJustification::DS_ALIGN_RIGHT);
-    Rect aRectNames2(340, 280, 450, 250);
-    TodDrawStringWrapped(g, _S("[CREDITS_NAMES2]"), aRectNames2, FONT_HOUSEOFTERROR16, Color::White, DrawStringJustification::DS_ALIGN_LEFT);
-    Rect aRectRoles2(30, 280, 300, 250);
-    TodDrawStringWrapped(g, _S("[CREDITS_ROLES2]"), aRectRoles2, FONT_HOUSEOFTERROR16, Color::White, DrawStringJustification::DS_ALIGN_RIGHT);
+    // Rect aRectNames1(405, 90, 200, 200);
+    // TodDrawStringWrapped(g, _S("[CREDITS_NAMES1]"), aRectNames1, FONT_HOUSEOFTERROR16, Color::White, DrawStringJustification::DS_ALIGN_LEFT);
+    // Rect aRectRoles1(190, 90, 200, 200);
+    // TodDrawStringWrapped(g, _S("[CREDITS_ROLES1]"), aRectRoles1, FONT_HOUSEOFTERROR16, Color::White, DrawStringJustification::DS_ALIGN_RIGHT);
+    // Rect aRectNames2(340, 280, 450, 250);
+    // TodDrawStringWrapped(g, _S("[CREDITS_NAMES2]"), aRectNames2, FONT_HOUSEOFTERROR16, Color::White, DrawStringJustification::DS_ALIGN_LEFT);
+    // Rect aRectRoles2(30, 280, 300, 250);
+    // TodDrawStringWrapped(g, _S("[CREDITS_ROLES2]"), aRectRoles2, FONT_HOUSEOFTERROR16, Color::White, DrawStringJustification::DS_ALIGN_RIGHT);
 
     TodDrawString(g, _S("Thank you for playing!"), BOARD_WIDTH / 2, 530, FONT_HOUSEOFTERROR16, Color::White, DrawStringJustification::DS_ALIGN_CENTER);
 }
