@@ -1008,7 +1008,7 @@ void SeedChooserScreen::ButtonDepress(int theId)
 					// Move the seed to the correct index
 					auto index = std::distance(std::begin(selected_seeds), desired_index);
 					aChosenSeed.mTimeStartMotion = mSeedChooserAge;
-					aChosenSeed.mTimeEndMotion = mSeedChooserAge + 15;
+					aChosenSeed.mTimeEndMotion = mSeedChooserAge + 25;
 					aChosenSeed.mStartX = aChosenSeed.mX;
 					aChosenSeed.mStartY = aChosenSeed.mY;
 					GetSeedPositionInBank(index, aChosenSeed.mEndX, aChosenSeed.mEndY);
