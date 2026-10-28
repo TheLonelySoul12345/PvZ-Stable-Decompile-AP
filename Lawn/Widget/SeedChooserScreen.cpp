@@ -109,6 +109,18 @@ SeedChooserScreen::SeedChooserScreen()
 	mAlmanacButton->mParentWidget = this;
 	mAlmanacButton->mTextOffsetY = 1;
 
+	mRepickButton = new GameButton(SeedChooserScreen::SeedChooserScreen_Reselect);
+	mRepickButton->SetLabel(_S("Repick Seeds"));
+	mRepickButton->mButtonImage = aBtnImage;
+	mRepickButton->mOverImage = aOverImage;
+	mRepickButton->mDownImage = nullptr;
+	mRepickButton->SetFont(Sexy::FONT_BRIANNETOD12);
+	mRepickButton->mColors[0] = aBtnColor;
+	mRepickButton->mColors[1] = aBtnColor;
+	mRepickButton->Resize(20, 552, aImageWidth, aImageHeight);
+	mRepickButton->mParentWidget = this;
+	mRepickButton->mTextOffsetY = 1;
+
 	mStoreButton = new GameButton(SeedChooserScreen::SeedChooserScreen_Store);
 	mStoreButton->SetLabel(_S("[SHOP_BUTTON]"));
 	mStoreButton->mButtonImage = aBtnImage;
@@ -147,6 +159,11 @@ SeedChooserScreen::SeedChooserScreen()
 	{
 		mStoreButton->mBtnNoDraw = true;
 		mStoreButton->mDisabled = true;
+	}
+	if (mApp->mRepickSeeds[0] == SeedType::SEED_NONE)
+	{
+		mRepickButton->mBtnNoDraw = true;
+		mRepickButton->mDisabled = true;
 	}
 
 	DBG_ASSERT(mApp->GetSeedsAvailable() <= NUM_SEED_TYPES);
@@ -368,6 +385,7 @@ SeedChooserScreen::~SeedChooserScreen()
 	if (mRandomButton) delete mRandomButton;
 	if (mViewLawnButton) delete mViewLawnButton;
 	if (mAlmanacButton) delete mAlmanacButton;
+	if (mRepickButton) delete mRepickButton;
 	if (mImitaterButton) delete mImitaterButton;
 	if (mStoreButton) delete mStoreButton;
 	if (mToolTip) delete mToolTip;
@@ -565,6 +583,7 @@ void SeedChooserScreen::Draw(Graphics* g)
 	mRandomButton->Draw(g);
 	mViewLawnButton->Draw(g);
 	mAlmanacButton->Draw(g);
+	mRepickButton->Draw(g);
 	mStoreButton->Draw(g);
 	Graphics aBoardFrameG = Graphics(*g);
 	aBoardFrameG.mTransX -= mX;
@@ -654,7 +673,7 @@ void SeedChooserScreen::UpdateCursor()
 
 	if (mMouseVisible && mChooseState != CHOOSE_VIEW_LAWN && (aMouseSeedType != SEED_NONE && !SeedNotAllowedToPick(aMouseSeedType)) ||
 		mRandomButton->IsMouseOver() || mViewLawnButton->IsMouseOver() || mAlmanacButton->IsMouseOver() || mImitaterButton->IsMouseOver() ||
-		mStoreButton->IsMouseOver() || mMenuButton->IsMouseOver() || mStartButton->IsMouseOver() || mScrollbar->isThumbOver())
+		mStoreButton->IsMouseOver() || mMenuButton->IsMouseOver() || mStartButton->IsMouseOver() || mScrollbar->isThumbOver() || mRepickButton->IsMouseOver())
 	{
 		mApp->SetCursor(CURSOR_HAND);
 	}
@@ -710,6 +729,7 @@ void SeedChooserScreen::Update()
 	mRandomButton->Update();
 	mViewLawnButton->Update();
 	mAlmanacButton->Update();
+	mRepickButton->Update();
 	mImitaterButton->Update();
 	mStoreButton->Update();
 	mMenuButton->Update();
@@ -937,6 +957,102 @@ void SeedChooserScreen::ButtonDepress(int theId)
 		mMenuButton->mIsDown = false;
 		UpdateCursor();
 		mApp->DoNewOptions(false);
+	}
+	else if (theId == SeedChooserScreen_Reselect)
+	{
+		std::vector<SeedType> selected_seeds;
+		selected_seeds.assign(std::begin(mApp->mRepickSeeds), std::end(mApp->mRepickSeeds));
+		std::vector<SeedType> selected_seeds_imitater;
+		selected_seeds_imitater.assign(std::begin(mApp->mRepickSeedsImitater), std::end(mApp->mRepickSeedsImitater));
+		
+		for (auto i = 0; i < selected_seeds.size(); i++)
+		{
+			auto seed = selected_seeds[i];
+			if (seed == SeedType::SEED_NONE)
+			{
+				break;
+			}
+			
+			if (SeedNotAllowedToPick(seed) || SeedNotAllowedToPick(selected_seeds_imitater[i]))
+			{
+				selected_seeds.erase(selected_seeds.begin() + i);
+				selected_seeds.push_back(SeedType::SEED_NONE);
+				selected_seeds_imitater.erase(selected_seeds_imitater.begin() + i);
+				selected_seeds_imitater.push_back(SeedType::SEED_NONE);
+				i--;
+			}
+		}
+		
+		for (SeedType aSeedType = SEED_PEASHOOTER; aSeedType < NUM_SEEDS_IN_CHOOSER; aSeedType = (SeedType)(aSeedType + 1))
+		{
+			auto desired_index = std::ranges::find(selected_seeds, aSeedType);
+			ChosenSeed& aChosenSeed = mChosenSeeds[aSeedType];
+			if (aChosenSeed.mSeedState == SEED_IN_BANK)
+			{
+				if (desired_index == std::end(selected_seeds))
+				{
+					// Return the chooser
+					aChosenSeed.mTimeStartMotion = mSeedChooserAge;
+					aChosenSeed.mTimeEndMotion = mSeedChooserAge + 25;
+					aChosenSeed.mStartX = aChosenSeed.mX;
+					aChosenSeed.mStartY = aChosenSeed.mY;
+					GetSeedPositionInChooser(aChosenSeed.mSeedType, aChosenSeed.mEndX, aChosenSeed.mEndY);
+					aChosenSeed.mSeedState = SEED_FLYING_TO_CHOOSER;
+					aChosenSeed.mSeedIndexInBank = 0;
+					mSeedsInBank--;
+					mSeedsInFlight++;
+					EnableStartButton(false);
+				}
+				else
+				{
+					// Move the seed to the correct index
+					auto index = std::distance(std::begin(selected_seeds), desired_index);
+					aChosenSeed.mTimeStartMotion = mSeedChooserAge;
+					aChosenSeed.mTimeEndMotion = mSeedChooserAge + 15;
+					aChosenSeed.mStartX = aChosenSeed.mX;
+					aChosenSeed.mStartY = aChosenSeed.mY;
+					GetSeedPositionInBank(index, aChosenSeed.mEndX, aChosenSeed.mEndY);
+					aChosenSeed.mSeedState = SEED_SHIFTING_IN_BANK;
+					aChosenSeed.mSeedIndexInBank = index;
+					if (aSeedType == SEED_IMITATER)
+					{
+						aChosenSeed.mImitaterType = selected_seeds_imitater[index];
+					}
+					mSeedsInFlight++;
+				}
+			}
+			else if (aChosenSeed.mSeedState == SEED_IN_CHOOSER || aChosenSeed.mSeedState == SEED_PACKET_HIDDEN)
+			{
+				if (desired_index != std::end(selected_seeds))
+				{
+					// Move the seed to the correct index
+					auto index = std::distance(std::begin(selected_seeds), desired_index);
+					if (index >= mBoard->mSeedBank->mNumPackets)
+					{
+						// Too many seeds!
+						continue;
+					}
+					aChosenSeed.mTimeStartMotion = mSeedChooserAge;
+					aChosenSeed.mTimeEndMotion = mSeedChooserAge + 25;
+					aChosenSeed.mStartX = aChosenSeed.mX;
+					aChosenSeed.mStartY = aChosenSeed.mY;
+					if (aChosenSeed.mSeedType != SeedType::SEED_IMITATER)
+						aChosenSeed.mStartY -= mScrollbar->mScrollValue;
+					GetSeedPositionInBank(index, aChosenSeed.mEndX, aChosenSeed.mEndY);
+					aChosenSeed.mSeedState = SEED_FLYING_TO_BANK;
+					aChosenSeed.mSeedIndexInBank = index;
+					if (aSeedType == SEED_IMITATER)
+					{
+						aChosenSeed.mImitaterType = selected_seeds_imitater[index];
+					}
+					mSeedsInFlight++;
+					mSeedsInBank++;
+				}
+			}
+		}
+		
+		if (mSeedsInBank == mBoard->mSeedBank->mNumPackets)
+			EnableStartButton(true);
 	}
 	else if (mApp->GetSeedsAvailable() >= mBoard->mSeedBank->mNumPackets)
 	{
@@ -1170,6 +1286,7 @@ void SeedChooserScreen::MouseUp(int x, int y, int theClickCount)
 		else if (mStartButton->IsMouseOver()) ButtonDepress(SeedChooserScreen::SeedChooserScreen_Start);
 		else if (mAlmanacButton->IsMouseOver()) ButtonDepress(SeedChooserScreen::SeedChooserScreen_Almanac);
 		else if (mStoreButton->IsMouseOver()) ButtonDepress(SeedChooserScreen::SeedChooserScreen_Store);
+		else if (mRepickButton->IsMouseOver()) ButtonDepress(SeedChooserScreen::SeedChooserScreen_Reselect);
 	}
 }
 
@@ -1224,7 +1341,7 @@ void SeedChooserScreen::MouseDown(int x, int y, int theClickCount)
 	{
 		mApp->PlaySample(Sexy::SOUND_GRAVEBUTTON);
 	}
-	else if (mStartButton->IsMouseOver() || mAlmanacButton->IsMouseOver() || mStoreButton->IsMouseOver())
+	else if (mStartButton->IsMouseOver() || mAlmanacButton->IsMouseOver() || mStoreButton->IsMouseOver() || mRepickButton->IsMouseOver())
 	{
 		mApp->PlaySample(Sexy::SOUND_TAP);
 	}
@@ -1340,6 +1457,8 @@ void SeedChooserScreen::CloseSeedChooser()
 		ChosenSeed& aChosenSeed = mChosenSeeds[aSeedType];
 		SeedPacket& aSeedPacket = mBoard->mSeedBank->mSeedPackets[anIndex];
 		aSeedPacket.SetPacketType(aSeedType, aChosenSeed.mImitaterType);
+		mApp->mRepickSeeds[anIndex] = aSeedType;
+		mApp->mRepickSeedsImitater[anIndex] = aChosenSeed.mImitaterType;
 		if (aChosenSeed.mRefreshing)
 		{
 			aSeedPacket.mRefreshCounter = aChosenSeed.mRefreshCounter;
@@ -1353,6 +1472,7 @@ void SeedChooserScreen::CloseSeedChooser()
 	mImitaterButton->SetDisabled(true);
 	mStoreButton->SetDisabled(true);
 	mAlmanacButton->SetDisabled(true);
+	mRepickButton->SetDisabled(true);
 	mMenuButton->SetDisabled(true);
 	mRandomButton->SetDisabled(true);
 	mBoard->mCutScene->EndSeedChooser();

@@ -181,6 +181,8 @@ public:
 	SexyString						mCliApSlot;
 	SexyString						mCliApPassword;
 	std::shared_ptr<PVZRAPData::SlotData> mSlotData;
+	SeedType						mRepickSeeds[10];
+	SeedType						mRepickSeedsImitater[10];
 	
 	Rect							gBoardBounds;
 

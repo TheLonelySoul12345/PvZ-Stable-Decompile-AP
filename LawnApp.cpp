@@ -855,6 +855,8 @@ LawnApp::LawnApp()
 	mAPCountdown = nullptr;
 	mConnectingDialog = nullptr;
 	mConnectedCallback = nullptr;
+	std::ranges::fill(mRepickSeeds, SeedType::SEED_NONE);
+	std::ranges::fill(mRepickSeedsImitater, SeedType::SEED_NONE);
 	
 	SetupArchipelago();
 }
