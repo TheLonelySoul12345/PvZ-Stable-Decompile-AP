@@ -574,6 +574,7 @@ public:
 	void							AddedToManager(WidgetManager* theManager);
 	void							RemovedFromManager(WidgetManager* theManager);
 	void							ButtonDepress(int theId);
+	void							PickUpSeed(int index);
 };
 extern bool gShownMoreSunTutorial;
 

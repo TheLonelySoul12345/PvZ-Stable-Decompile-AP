@@ -10696,11 +10696,20 @@ void Board::KeyDown(KeyCode theKey)
 		{
 			mApp->mZenGarden->AdvanceCrazyDaveDialog();
 		}
-		else if (theKey == KeyCode::KEYCODE_SPACE && mApp->CanPauseNow())
+		else if (theKey == KeyCode::KEYCODE_SPACE)
 		{
-			mApp->PlaySample(Sexy::SOUND_PAUSE);
-			mApp->DoPauseDialog();
+			// Pick up all the collectables
+			Coin* aCoin = nullptr;
+			while (IterateCoins(aCoin))
+			{
+				aCoin->TryAutoCollectAfterLevelAward();
+			}
 		}
+		// else if (theKey == KeyCode::KEYCODE_SPACE && mApp->CanPauseNow())
+		// {
+		// 	mApp->PlaySample(Sexy::SOUND_PAUSE);
+		// 	mApp->DoPauseDialog();
+		// }
 	}
 	else if (theKey == KeyCode::KEYCODE_ESCAPE)
 	{
@@ -10763,9 +10772,53 @@ void Board::KeyChar(SexyChar theChar)
 #endif
 
 #ifdef _DEBUG 
-	if(!mApp->mDebugKeysEnabled)
+	if(!mApp->mDebugKeysEnabled || true)
+	{
 #endif
+		if (theChar == '1')
+		{
+			PickUpSeed(0);
+		}
+		else if (theChar == '2')
+		{
+			PickUpSeed(1);
+		}
+		else if (theChar == '3')
+		{
+			PickUpSeed(2);
+		}
+		else if (theChar == '4')
+		{
+			PickUpSeed(3);
+		}
+		else if (theChar == '5')
+		{
+			PickUpSeed(4);
+		}
+		else if (theChar == '6')
+		{
+			PickUpSeed(5);
+		}
+		else if (theChar == '7')
+		{
+			PickUpSeed(6);
+		}
+		else if (theChar == '8')
+		{
+			PickUpSeed(7);
+		}
+		else if (theChar == '9')
+		{
+			PickUpSeed(8);
+		}
+		else if (theChar == '0')
+		{
+			PickUpSeed(9);
+		}
 		return;
+#ifdef _DEBUG
+	}
+#endif
 
 	TodTraceAndLog("Board cheat key '%c'", theChar);
 
@@ -13173,4 +13226,17 @@ void Board::ButtonDepress(int theId)
 		}
 	}
 #endif
+}
+
+void Board::PickUpSeed(int index)
+{
+	auto seedPacket = &mSeedBank->mSeedPackets[index];
+	if (seedPacket->mPacketType != SeedType::SEED_NONE)
+	{
+		if (mCursorObject->mCursorType != CursorType::CURSOR_TYPE_NORMAL && mCursorObject->mCursorType != CursorType::CURSOR_TYPE_HAMMER)
+		{
+			RefreshSeedPacketFromCursor();
+		}
+		seedPacket->MouseDown(0, 0, 1);
+	}
 }
