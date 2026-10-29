@@ -150,6 +150,18 @@ void ArchipelagoStatusDialog::Draw(Graphics* g)
 
 void ArchipelagoStatusDialog::EditWidgetText(int theId, const SexyString& theString)
 {
+	if (mApp->mAltDown)
+	{
+		if (!mHostAutofix.empty())
+		{
+			mHostEditWidget->mString = mHostAutofix;
+			mHostAutofix.clear();
+			
+			delete mAdmonition;
+			mAdmonition = nullptr;
+		}
+		return;
+	}
 	if (mApp->mAP->ConnectionStatus() == APWrapper::ConnectionStatus::Disconnected)
 	{
 		// Connect to AP
@@ -324,9 +336,10 @@ void ArchipelagoStatusDialog::Update()
 			{
 				mAdmonition = new Admonition();
 				mAdmonition->SetArea(mHostEditWidget->GetRect());
-				mAdmonition->SetText("Did you mean: " + possible_autofix);
+				mAdmonition->SetText("Did you mean: " + possible_autofix + " (ALT+Enter to fix)");
 			}
 			
+			mHostAutofix = possible_autofix;
 			mHostHasFocus = false;
 		}
 	}

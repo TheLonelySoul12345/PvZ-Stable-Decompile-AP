@@ -596,113 +596,129 @@ bool LawnApp::UpdateAppStep(bool* updated)
 					RehupFocus();
 					break;
 				case SDL_EVENT_WINDOW_RESIZED:
-				{
-					float scale = 1.0f;
-					int pw, ph;
-					SDL_GetWindowSizeInPixels(mSDLWindow, &pw, &ph);
-
-					if (pw >= 800 || ph >= 600) scale = max(max(static_cast<float>(pw) / 800.0f, static_cast<float>(ph) / 600.0f), 1.0f);
-					SDL3Font::RebuildFonts(scale);
-					break;
-				}
-				case SDL_EVENT_KEY_DOWN:
-				{
-					if (!imguiWantsKeyboard)
 					{
-						mLastUserInputTick = mLastTimerTime;
-						if (mDebugKeysEnabled)
-						{
-							if (DebugKeyDown(GetKeyCodeFromCodeSDL(event.key.key)))
-								break;
-						}
-						else
-						{
-							KeyCode theKey = GetKeyCodeFromCodeSDL(event.key.key);
-							if (theKey == KEYCODE_F10)
-							{
-								TakeScreenshot();
-								break;
-							}
-							else if (theKey == KeyCode::KEYCODE_F11)
-							{
-								gLawnApp->SwitchScreenMode(!gLawnApp->mIsWindowed, true);
-								break;
-							}
-						}
+						float scale = 1.0f;
+						int pw, ph;
+						SDL_GetWindowSizeInPixels(mSDLWindow, &pw, &ph);
 
-						int theChar = GetKeyCodeFromCodeSDL(event.key.key);
-
-						if ((theChar < KEYCODE_ASCIIBEGIN || theChar > KEYCODE_ASCIIEND) && (theChar < KEYCODE_ASCIIBEGIN2 || theChar > KEYCODE_ASCIIEND2))
-						{
-							theChar = -1;
-						}
-
-						{
-							bool shift = (event.key.mod & SDL_KMOD_SHIFT) != 0;
-							switch (event.key.key)
-							{
-							case SDLK_EXCLAIM: theChar = '!'; break;
-							case SDLK_AT: theChar = '@'; break;
-							case SDLK_KP_HASH:   theChar = '#'; break;
-							case SDLK_DOLLAR:   theChar = '$'; break;
-							case SDLK_PERCENT:   theChar = '%'; break;
-							case SDLK_AMPERSAND:   theChar = '&'; break;
-							case SDLK_ASTERISK:   theChar = '*'; break;
-
-							case SDLK_KP_PLUS:   theChar = '+'; break;
-							case SDLK_KP_MINUS:  theChar = '-'; break;
-							case SDLK_KP_MULTIPLY: theChar = '*'; break;
-							case SDLK_SLASH:
-							case SDLK_KP_DIVIDE: theChar = '/'; break;
-							case SDLK_KP_PERIOD: theChar = '.'; break;
-
-							case SDLK_KP_0: theChar = shift ? ')' : '0'; break;
-							case SDLK_KP_1: theChar = shift ? '!' : '1'; break;
-							case SDLK_KP_2: theChar = shift ? '@' : '2'; break;
-							case SDLK_KP_3: theChar = shift ? '#' : '3'; break;
-							case SDLK_KP_4: theChar = shift ? '$' : '4'; break;
-							case SDLK_KP_5: theChar = shift ? '%' : '5'; break;
-							case SDLK_KP_6: theChar = shift ? '^' : '6'; break;
-							case SDLK_KP_7: theChar = shift ? '&' : '7'; break;
-							case SDLK_KP_8: theChar = shift ? '*' : '8'; break;
-							case SDLK_KP_9: theChar = shift ? '(' : '9'; break;
-							}
-						}
-
-						if (theChar != -1 && theChar == 'D' && (mWidgetManager != NULL) && (mWidgetManager->mKeyDown[KEYCODE_CONTROL]) && (mWidgetManager->mKeyDown[KEYCODE_MENU]))
-						{
-							PlaySoundA("c:\\windows\\media\\Windows XP Menu Command.wav", NULL, SND_ASYNC);
-							mDebugKeysEnabled = !mDebugKeysEnabled;
-						}
-
-						mWidgetManager->KeyDown(GetKeyCodeFromCodeSDL(event.key.key));
-
-						if (theChar != -1 && !SDL_TextInputActive(mSDLWindow)) {
-
-							bool shift = (event.key.mod & SDL_KMOD_SHIFT) != 0;
-							bool caps = (event.key.mod & SDL_KMOD_CAPS) != 0;
-
-							SexyChar c = theChar;
-
-							if (isalpha(c))
-							{
-								if (shift ^ caps)
-									c = toupper(c);
-								else
-									c = tolower(c);
-							}
-							mWidgetManager->KeyChar(c);
-						}	
+						if (pw >= 800 || ph >= 600) scale = max(max(static_cast<float>(pw) / 800.0f, static_cast<float>(ph) / 600.0f), 1.0f);
+						SDL3Font::RebuildFonts(scale);
+						break;
 					}
-					break;
-				}
-				case SDL_EVENT_KEY_UP:					
+				case SDL_EVENT_KEY_DOWN:
+					{
+						if (!imguiWantsKeyboard)
+						{
+							mLastUserInputTick = mLastTimerTime;
+							if (mDebugKeysEnabled)
+							{
+								if (DebugKeyDown(GetKeyCodeFromCodeSDL(event.key.key)))
+									break;
+							}
+							else
+							{
+								KeyCode theKey = GetKeyCodeFromCodeSDL(event.key.key);
+								if (theKey == KEYCODE_F10)
+								{
+									TakeScreenshot();
+									break;
+								}
+								else if (theKey == KeyCode::KEYCODE_F11)
+								{
+									gLawnApp->SwitchScreenMode(!gLawnApp->mIsWindowed, true);
+									break;
+								}
+							}
+
+							int theChar = GetKeyCodeFromCodeSDL(event.key.key);
+							if (theChar == KEYCODE_CONTROL)
+							{
+								mCtrlDown = true;
+							} else if (theChar == KEYCODE_MENU)
+							{
+								mAltDown = true;
+							}
+
+							if ((theChar < KEYCODE_ASCIIBEGIN || theChar > KEYCODE_ASCIIEND) && (theChar < KEYCODE_ASCIIBEGIN2 || theChar > KEYCODE_ASCIIEND2))
+							{
+								theChar = -1;
+							}
+
+							{
+								bool shift = (event.key.mod & SDL_KMOD_SHIFT) != 0;
+								switch (event.key.key)
+								{
+								case SDLK_EXCLAIM: theChar = '!'; break;
+								case SDLK_AT: theChar = '@'; break;
+								case SDLK_KP_HASH:   theChar = '#'; break;
+								case SDLK_DOLLAR:   theChar = '$'; break;
+								case SDLK_PERCENT:   theChar = '%'; break;
+								case SDLK_AMPERSAND:   theChar = '&'; break;
+								case SDLK_ASTERISK:   theChar = '*'; break;
+
+								case SDLK_KP_PLUS:   theChar = '+'; break;
+								case SDLK_KP_MINUS:  theChar = '-'; break;
+								case SDLK_KP_MULTIPLY: theChar = '*'; break;
+								case SDLK_SLASH:
+								case SDLK_KP_DIVIDE: theChar = '/'; break;
+								case SDLK_KP_PERIOD: theChar = '.'; break;
+
+								case SDLK_KP_0: theChar = shift ? ')' : '0'; break;
+								case SDLK_KP_1: theChar = shift ? '!' : '1'; break;
+								case SDLK_KP_2: theChar = shift ? '@' : '2'; break;
+								case SDLK_KP_3: theChar = shift ? '#' : '3'; break;
+								case SDLK_KP_4: theChar = shift ? '$' : '4'; break;
+								case SDLK_KP_5: theChar = shift ? '%' : '5'; break;
+								case SDLK_KP_6: theChar = shift ? '^' : '6'; break;
+								case SDLK_KP_7: theChar = shift ? '&' : '7'; break;
+								case SDLK_KP_8: theChar = shift ? '*' : '8'; break;
+								case SDLK_KP_9: theChar = shift ? '(' : '9'; break;
+								}
+							}
+
+							if (theChar != -1 && theChar == 'D' && (mWidgetManager != NULL) && (mWidgetManager->mKeyDown[KEYCODE_CONTROL]) && (mWidgetManager->mKeyDown[KEYCODE_MENU]))
+							{
+								PlaySoundA("c:\\windows\\media\\Windows XP Menu Command.wav", NULL, SND_ASYNC);
+								mDebugKeysEnabled = !mDebugKeysEnabled;
+							}
+
+							mWidgetManager->KeyDown(GetKeyCodeFromCodeSDL(event.key.key));
+
+							if (theChar != -1 && !SDL_TextInputActive(mSDLWindow)) {
+
+								bool shift = (event.key.mod & SDL_KMOD_SHIFT) != 0;
+								bool caps = (event.key.mod & SDL_KMOD_CAPS) != 0;
+
+								SexyChar c = theChar;
+
+								if (isalpha(c))
+								{
+									if (shift ^ caps)
+										c = toupper(c);
+									else
+										c = tolower(c);
+								}
+								mWidgetManager->KeyChar(c);
+							}	
+						}
+						break;
+					}
+				case SDL_EVENT_KEY_UP: {
+					int theChar = GetKeyCodeFromCodeSDL(event.key.key);
+					if (theChar == KEYCODE_CONTROL)
+					{
+						mCtrlDown = false;
+					} else if (theChar == KEYCODE_MENU)
+					{
+						mAltDown = false;
+					}
 					if (!imguiWantsKeyboard)
 					{
 						mLastUserInputTick = mLastTimerTime;
 						mWidgetManager->KeyUp(GetKeyCodeFromCodeSDL(event.key.key));
 					}
 					break;
+				}
 				case SDL_EVENT_TEXT_INPUT:
 					if (!imguiWantsKeyboard)
 					{

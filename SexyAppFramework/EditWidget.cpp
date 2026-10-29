@@ -275,7 +275,7 @@ bool EditWidget::IsPartOfWord(SexyChar theChar)
 void EditWidget::ProcessKey(KeyCode theKey, SexyChar theChar)
 {
 	bool shiftDown = mWidgetManager->mKeyDown[KEYCODE_SHIFT];
-	bool controlDown = mWidgetManager->mKeyDown[KEYCODE_CONTROL];
+	bool controlDown = mWidgetManager->mApp->mCtrlDown;
 
 	if ((theKey == KEYCODE_SHIFT) || (theKey == KEYCODE_CONTROL))
 		return;
@@ -289,9 +289,9 @@ void EditWidget::ProcessKey(KeyCode theKey, SexyChar theChar)
 	SexyString anOldString = mString;
 	int anOldCursorPos = mCursorPos;
 	int anOldHilitePos = mHilitePos;
-	if (theChar == 1)
+	if (controlDown)
 	{
-		if (controlDown)
+		if (theKey == 'A')
 		{
 			// Select All
 			
@@ -299,89 +299,89 @@ void EditWidget::ProcessKey(KeyCode theKey, SexyChar theChar)
 			mCursorPos = mString.length();
 			removeHilite = false;
 		}
-	}
-	else if ((theChar == 3) || (theChar == 24))
-	{
-		// Copy	selection
-		
-		if ((mHilitePos != -1) && (mHilitePos != mCursorPos))
+		else if ((theKey == 'C') || (theKey == 'X'))
 		{
-			if (mCursorPos < mHilitePos)
-				mWidgetManager->mApp->CopyToClipboard(SexyStringToString(GetDisplayString().substr(mCursorPos, mHilitePos)));
-			else
-				mWidgetManager->mApp->CopyToClipboard(SexyStringToString(GetDisplayString().substr(mHilitePos, mCursorPos)));
-		
-			if (theChar == 3)
-			{				
-				removeHilite = false;
-			}
-			else
+			// Copy	selection
+			
+			if ((mHilitePos != -1) && (mHilitePos != mCursorPos))
 			{
-				mString = mString.substr(0, min(mCursorPos, mHilitePos)) + mString.substr(max(mCursorPos, mHilitePos));
-				mCursorPos = min(mCursorPos, mHilitePos);
-				mHilitePos = -1;
+				if (mCursorPos < mHilitePos)
+					mWidgetManager->mApp->CopyToClipboard(SexyStringToString(GetDisplayString().substr(mCursorPos, mHilitePos)));
+				else
+					mWidgetManager->mApp->CopyToClipboard(SexyStringToString(GetDisplayString().substr(mHilitePos, mCursorPos)));
+			
+				if (theKey == 'C')
+				{				
+					removeHilite = false;
+				}
+				else
+				{
+					mString = mString.substr(0, min(mCursorPos, mHilitePos)) + mString.substr(max(mCursorPos, mHilitePos));
+					mCursorPos = min(mCursorPos, mHilitePos);
+					mHilitePos = -1;
+					bigChange = true;
+				}
+			}				
+		}
+		else if (theKey == 'V')
+		{
+			// Paste selection
+			
+			SexyString aBaseString = StringToSexyString(mWidgetManager->mApp->GetClipboard());
+			
+			if (aBaseString.length() > 0)
+			{	
+				SexyString aString;
+
+				for (ulong i = 0; i < aBaseString.length(); i++)
+				{
+					if ((aBaseString[i] == '\r') || (aBaseString[i] == '\n'))
+						break;
+
+					if (mFont->CharWidth(aBaseString[i]) != 0 && mEditListener->AllowChar(mId, aBaseString[i]))
+						aString += aBaseString[i];					
+				}			
+
+				if (mHilitePos == -1)
+				{
+					// Insert string where cursor is
+					mString = mString.substr(0, mCursorPos) + aString + mString.substr(mCursorPos);
+				}
+				else
+				{
+					// Replace selection with new string
+					mString = mString.substr(0, min(mCursorPos, mHilitePos)) + aString + mString.substr(max(mCursorPos, mHilitePos));
+					mCursorPos = min(mCursorPos, mHilitePos);
+					mHilitePos = -1;
+				}
+			
+				mCursorPos += aString.length();
+			
 				bigChange = true;
 			}
-		}				
-	}
-	else if (theChar == 22)
-	{
-		// Paste selection
-		
-		SexyString aBaseString = StringToSexyString(mWidgetManager->mApp->GetClipboard());
-		
-		if (aBaseString.length() > 0)
-		{	
-			SexyString aString;
-
-			for (ulong i = 0; i < aBaseString.length(); i++)
-			{
-				if ((aBaseString[i] == '\r') || (aBaseString[i] == '\n'))
-					break;
-
-				if (mFont->CharWidth(aBaseString[i]) != 0 && mEditListener->AllowChar(mId, aBaseString[i]))
-					aString += aBaseString[i];					
-			}			
-
-			if (mHilitePos == -1)
-			{
-				// Insert string where cursor is
-				mString = mString.substr(0, mCursorPos) + aString + mString.substr(mCursorPos);
-			}
-			else
-			{
-				// Replace selection with new string
-				mString = mString.substr(0, min(mCursorPos, mHilitePos)) + aString + mString.substr(max(mCursorPos, mHilitePos));
-				mCursorPos = min(mCursorPos, mHilitePos);
-				mHilitePos = -1;
-			}
-		
-			mCursorPos += aString.length();
-		
-			bigChange = true;
+		}
+		else if (theKey == 'Z')
+		{
+			// Undo
+			
+			mLastModifyIdx = -1;
+			
+			SexyString aSwapString = mString;
+			int aSwapCursorPos = mCursorPos;
+			int aSwapHilitePos = mHilitePos;			
+			
+			mString = mUndoString;
+			mCursorPos = mUndoCursor;
+			mHilitePos = mUndoHilitePos;
+						
+			mUndoString = aSwapString;
+			mUndoCursor = aSwapCursorPos;
+			mUndoHilitePos = aSwapHilitePos;			
+			
+			removeHilite = false;						
 		}
 	}
-	else if (theChar == 26)
-	{
-		// Undo
-		
-		mLastModifyIdx = -1;
-		
-		SexyString aSwapString = mString;
-		int aSwapCursorPos = mCursorPos;
-		int aSwapHilitePos = mHilitePos;			
-		
-		mString = mUndoString;
-		mCursorPos = mUndoCursor;
-		mHilitePos = mUndoHilitePos;
-					
-		mUndoString = aSwapString;
-		mUndoCursor = aSwapCursorPos;
-		mUndoHilitePos = aSwapHilitePos;			
-		
-		removeHilite = false;						
-	}
-	else if (theKey == KEYCODE_LEFT)
+	if (theKey == KEYCODE_LEFT)
 	{
 		if (controlDown)
 		{
@@ -585,7 +585,7 @@ void EditWidget::ProcessKey(KeyCode theKey, SexyChar theChar)
 
 void EditWidget::KeyDown(KeyCode theKey)
 {
-	if (((theKey < 'A') || (theKey >= 'Z')) && mEditListener->AllowKey(mId, theKey))
+	if (((theKey < 'A') || (theKey >= 'Z') || mWidgetManager->mApp->mCtrlDown) && mEditListener->AllowKey(mId, theKey))
 		ProcessKey(theKey, 0);
 
 	Widget::KeyDown(theKey);

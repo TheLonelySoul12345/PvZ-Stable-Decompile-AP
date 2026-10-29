@@ -10772,7 +10772,7 @@ void Board::KeyChar(SexyChar theChar)
 #endif
 
 #ifdef _DEBUG 
-	if(!mApp->mDebugKeysEnabled || true)
+	if(!mApp->mDebugKeysEnabled)
 	{
 #endif
 		if (theChar == '1')

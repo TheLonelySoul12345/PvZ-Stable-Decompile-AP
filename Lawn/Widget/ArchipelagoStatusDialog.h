@@ -20,6 +20,7 @@ public:
 	LawnStoneButton*		mConnectButton;
 	LawnStoneButton*		mCloseButton;
 	Admonition*             mAdmonition;
+	std::string             mHostAutofix;
 	
 	bool                    mHostHasFocus;
 	
