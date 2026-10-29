@@ -12,6 +12,7 @@ class LawnApp;
 class GameButton;
 class ToolTipWidget;
 class ScrollbarWidget;
+class Admonition;
 namespace Sexy
 {
     class MTRand;
@@ -87,6 +88,7 @@ public:
     bool					mSwipeJustReleased;
     bool                    mAllowBetaSeedpackets;
     ScrollbarWidget*        mScrollbar;
+    Admonition*             mAdmonition;
 
 public:
     SeedChooserScreen();

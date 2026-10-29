@@ -20,6 +20,7 @@
 #include "../../SexyAppFramework/MTRand.h"
 #include "../../Sexy.TodLib/TodStringFile.h"
 #include "../../SexyAppFramework/WidgetManager.h"
+#include "../Admonition.h"
 //0x483380
 SeedChooserScreen::SeedChooserScreen()
 {
@@ -110,14 +111,14 @@ SeedChooserScreen::SeedChooserScreen()
 	mAlmanacButton->mTextOffsetY = 1;
 
 	mRepickButton = new GameButton(SeedChooserScreen::SeedChooserScreen_Reselect);
-	mRepickButton->SetLabel(_S("Repick Seeds"));
+	mRepickButton->SetLabel(_S("REPICK SEEDS"));
 	mRepickButton->mButtonImage = aBtnImage;
 	mRepickButton->mOverImage = aOverImage;
 	mRepickButton->mDownImage = nullptr;
 	mRepickButton->SetFont(Sexy::FONT_BRIANNETOD12);
 	mRepickButton->mColors[0] = aBtnColor;
 	mRepickButton->mColors[1] = aBtnColor;
-	mRepickButton->Resize(20, 552, aImageWidth, aImageHeight);
+	mRepickButton->Resize(332, 561, aImageWidth, aImageHeight);
 	mRepickButton->mParentWidget = this;
 	mRepickButton->mTextOffsetY = 1;
 
@@ -257,6 +258,9 @@ SeedChooserScreen::SeedChooserScreen()
 	// if (mApp->IsAdventureMode() && (!mApp->IsFirstTimeAdventureMode() || mApp->mPlayerLevelRef > 4 && mBoard->mLevel < mApp->mPlayerLevelRef))
 	// 	CrazyDavePickSeeds();
 	UpdateImitaterButton();
+	
+	mAdmonition = new Admonition();
+	mAdmonition->Die();
 }
 
 int SeedChooserScreen::PickFromWeightedArrayUsingSpecialRandSeed(TodWeightedArray* theArray, int theCount, MTRand& theLevelRNG)
@@ -391,6 +395,7 @@ SeedChooserScreen::~SeedChooserScreen()
 	if (mToolTip) delete mToolTip;
 	if (mMenuButton) delete mMenuButton;
 	if (mScrollbar) delete mScrollbar;
+	if (mAdmonition) delete mAdmonition;
 }
 
 //0x4845E0
@@ -588,6 +593,10 @@ void SeedChooserScreen::Draw(Graphics* g)
 	Graphics aBoardFrameG = Graphics(*g);
 	aBoardFrameG.mTransX -= mX;
 	aBoardFrameG.mTransY -= mY;
+	if (!mAdmonition->IsDead())
+	{
+		mAdmonition->Draw(g);
+	}
 	mMenuButton->Draw(&aBoardFrameG);
 	mToolTip->Draw(g);
 }
@@ -734,6 +743,7 @@ void SeedChooserScreen::Update()
 	mStoreButton->Update();
 	mMenuButton->Update();
 	mScrollbar->Update();
+	mAdmonition->Update();
 	UpdateViewLawn();
 	UpdateCursor();
 	MarkDirty();
@@ -965,6 +975,8 @@ void SeedChooserScreen::ButtonDepress(int theId)
 		std::vector<SeedType> selected_seeds_imitater;
 		selected_seeds_imitater.assign(std::begin(mApp->mRepickSeedsImitater), std::end(mApp->mRepickSeedsImitater));
 		
+		std::vector<SeedType> removed_seeds;
+		
 		for (auto i = 0; i < selected_seeds.size(); i++)
 		{
 			auto seed = selected_seeds[i];
@@ -979,6 +991,7 @@ void SeedChooserScreen::ButtonDepress(int theId)
 				selected_seeds.push_back(SeedType::SEED_NONE);
 				selected_seeds_imitater.erase(selected_seeds_imitater.begin() + i);
 				selected_seeds_imitater.push_back(SeedType::SEED_NONE);
+				removed_seeds.push_back(seed);
 				i--;
 			}
 		}
@@ -1053,6 +1066,13 @@ void SeedChooserScreen::ButtonDepress(int theId)
 		
 		if (mSeedsInBank == mBoard->mSeedBank->mNumPackets)
 			EnableStartButton(true);
+		
+		if (!removed_seeds.empty())
+		{
+			mAdmonition->SetArea(Rect(mRepickButton->mX, mRepickButton->mY, mRepickButton->mWidth, mRepickButton->mHeight));
+			mAdmonition->SetText("Some plants could not be selected as they are ineligible for this level.");
+			mAdmonition->timer = 600;
+		}
 	}
 	else if (mApp->GetSeedsAvailable() >= mBoard->mSeedBank->mNumPackets)
 	{

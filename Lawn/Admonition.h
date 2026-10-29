@@ -23,4 +23,5 @@ public:
     void                SetAdmonishDownwards(bool admonish_downwards);
     void                Update();
     bool                IsDead();
+    void                Die();
 };

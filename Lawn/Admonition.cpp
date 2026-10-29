@@ -80,10 +80,18 @@ void Admonition::SetAdmonishDownwards(bool admonish_downwards)
 
 void Admonition::Update()
 {
-    this->timer--;
+    if (this->timer > 0)
+    {
+        this->timer--;
+    }
 }
 
 bool Admonition::IsDead()
 {
     return this->timer <= 0;
+}
+
+void Admonition::Die()
+{
+    this->timer = 0;
 }
